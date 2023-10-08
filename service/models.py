@@ -86,7 +86,7 @@ class PersistentBase:
 
 
 ######################################################################
-#  I T E M   M O D E L
+#  C A R T I T E M   M O D E L
 ######################################################################
 class CartItem(db.Model, PersistentBase):
     """
