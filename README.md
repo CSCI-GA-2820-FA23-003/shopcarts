@@ -1,31 +1,10 @@
-# NYU DevOps Project Template
+# NYU DevOps Fall 2023 : Shopcarts
 
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Python](https://img.shields.io/badge/Language-Python-blue.svg)](https://python.org/)
 
-This is a skeleton you can use to start your projects
+This is the repo for the Shopcarts API
 
-## Overview
-
-This project template contains starter code for your class project. The `/service` folder contains your `models.py` file for your model and a `routes.py` file for your service. The `/tests` folder has test case starter code for testing the model and the service separately. All you need to do is add your functionality. You can use the [lab-flask-tdd](https://github.com/nyu-devops/lab-flask-tdd) for code examples to copy from.
-
-## Automatic Setup
-
-The best way to use this repo is to start your own repo using it as a git template. To do this just press the green **Use this template** button in GitHub and this will become the source for your repository.
-
-## Manual Setup
-
-You can also clone this repository and then copy and paste the starter code into your project repo folder on your local computer. Be careful not to copy over your own `README.md` file so be selective in what you copy.
-
-There are 4 hidden files that you will need to copy manually if you use the Mac Finder or Windows Explorer to copy files from this folder into your repo folder.
-
-These should be copied using a bash shell as follows:
-
-```bash
-    cp .gitignore  ../<your_repo_folder>/
-    cp .flaskenv ../<your_repo_folder>/
-    cp .gitattributes ../<your_repo_folder>/
-```
 
 ## Contents
 
@@ -53,6 +32,67 @@ tests/              - test cases package
 ├── __init__.py     - package initializer
 ├── test_models.py  - test suite for business models
 └── test_routes.py  - test suite for service routes
+```
+
+## Running the tests
+
+Run the tests using `green`. The goal is to have 95% coverage with 100% passing tests.
+
+```bash
+$ green
+```
+
+## Running the service
+
+The project uses honcho which gets it's commands from the Procfile. To start the service simply use:
+
+```bash
+$ honcho start
+```
+
+You should be able to reach the service at: http://localhost:8000. The port that is used is controlled by an environment variable defined in the .flaskenv file which Flask uses to load it's configuration from the environment by default.
+
+## Information about this repo
+
+### Models
+
+##### `Shopcart`
+
+| `Name`      | `Comment`             | `Data type` |
+| ----------- | --------------------- | --------------- |
+| id | Unique ID for the shopcart. | uuid         |
+| items | List of items in the shopcart | `CartItem`         |
+
+##### `CartItem`
+
+| `Name`      | `Comment`             | `Data type` |
+| ----------- | --------------------- | --------------- |
+| id | Unique ID for the item. | uuid         |
+| shopcart_id | ID of the shopcart it belongs to | uuid       |
+| product_name | Name of the product | string       |
+| quantity | Quantity of the product in the cart | Number       |
+| price | Price of the product when it was added | Float       |
+
+### Routes
+
+```bash
+$ flask routes
+
+Endpoint          Methods  Rule
+----------------  -------  -----------------------------------------------------
+index             GET      /
+
+list_shopcarts     GET      /???
+create_shopcarts   POST     /???
+get_shopcarts      GET      /???/<???>
+update_shopcarts   PUT      /???/<???>
+delete_shopcarts   DELETE   /???/<???>
+
+list_cart_items    GET      /???/<int:???>/???
+create_cart_items  POST     /???/<???>/???
+get_cart_items     GET      /???/<???>/???/<???>
+update_cart_items  PUT      /???/<???>/???/<???>
+delete_cart_items  DELETE   /???/<???>/???/<???>
 ```
 
 ## License
