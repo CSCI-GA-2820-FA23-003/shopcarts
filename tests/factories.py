@@ -26,14 +26,18 @@ class ShopcartFactory(factory.Factory):
     # pylint: disable=too-few-public-methods
     class Meta:
         """Persistent class"""
+
         model = Shopcart
 
     id = factory.Sequence(lambda n: n)
+    customer_id = factory.Sequence(lambda n: n)
     # the many side of relationships can be a little wonky in factory boy:
     # https://factoryboy.readthedocs.io/en/latest/recipes.html#simple-many-to-many-relationship
 
     @factory.post_generation
-    def items(self, create, extracted, **kwargs):   # pylint: disable=method-hidden, unused-argument
+    def items(
+        self, create, extracted, **kwargs
+    ):  # pylint: disable=method-hidden, unused-argument
         """Creates the items list"""
         if not create:
             return
@@ -48,11 +52,14 @@ class CartItemFactory(factory.Factory):
     # pylint: disable=too-few-public-methods
     class Meta:
         """Persistent class"""
+
         model = CartItem
 
     id = factory.Sequence(lambda n: n)
     shopcart_id = None
-    product_name = FuzzyChoice(choices=["iPhone", "iPad", "MacBook", "Google Pixel", "Apple Watch"])
+    product_name = FuzzyChoice(
+        choices=["iPhone", "iPad", "MacBook", "Google Pixel", "Apple Watch"]
+    )
     quantity = FuzzyInteger(1, 10)
     price = FuzzyFloat(0.1, 51.0)
     shopcart = factory.SubFactory(ShopcartFactory)
