@@ -6,6 +6,7 @@ All of the models are stored in this module
 import logging
 from abc import abstractmethod
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.exc import IntegrityError
 
 logger = logging.getLogger("flask.app")
 
@@ -44,10 +45,13 @@ class PersistentBase:
         """
         Creates a Shopcart to the database
         """
-        logger.info("Creating %s", self.id)
-        self.id = None  # id must be none to generate next primary key
-        db.session.add(self)
-        db.session.commit()
+        try:
+            logger.info("Creating %s", self.id)
+            self.id = None  # id must be none to generate next primary key
+            db.session.add(self)
+            db.session.commit()
+        except IntegrityError as error:
+            raise DataValidationError("Invalid Shopcart: " + error.args[0]) from error
 
     def update(self):
         """
@@ -154,6 +158,7 @@ class Shopcart(db.Model, PersistentBase):
 
     # Table Schema
     id = db.Column(db.Integer, primary_key=True)
+    customer_id = db.Column(db.Integer, unique=True, nullable=False)
     items = db.relationship("CartItem", backref="shopcart", passive_deletes=True)
 
     def __repr__(self):
@@ -163,6 +168,7 @@ class Shopcart(db.Model, PersistentBase):
         """Converts an ShopCart into a dictionary"""
         shopcart = {
             "id": self.id,
+            "customer_id": self.customer_id,
             "items": [],
         }
         for item in self.items:
@@ -178,6 +184,7 @@ class Shopcart(db.Model, PersistentBase):
         """
         try:
             # handle inner list of items
+            self.customer_id = data.get("customer_id")
             item_list = data.get("items")
             for json_item in item_list:
                 item = CartItem()

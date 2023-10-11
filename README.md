@@ -61,6 +61,7 @@ You should be able to reach the service at: http://localhost:8000. The port that
 | `Name`      | `Comment`             | `Data type` |
 | ----------- | --------------------- | --------------- |
 | id | Unique ID for the shopcart. | uuid         |
+| customer_id | Unique ID tying a customer ID to the shopcart. | uuid         |
 | items | List of items in the shopcart | `CartItem`         |
 
 ##### `CartItem`

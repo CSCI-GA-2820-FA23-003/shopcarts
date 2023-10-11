@@ -13,12 +13,13 @@ DATABASE_URI = os.getenv(
     "DATABASE_URI", "postgresql://postgres:postgres@localhost:5432/postgres"
 )
 
+
 ######################################################################
 #  YourResourceModel   M O D E L   T E S T   C A S E S
 ######################################################################
 # pylint: disable=too-many-public-methods
 class TestShopcart(unittest.TestCase):
-    """ Test Cases for YourResourceModel Model """
+    """Test Cases for YourResourceModel Model"""
 
     @classmethod
     def setUpClass(cls):
@@ -51,9 +52,7 @@ class TestShopcart(unittest.TestCase):
     def test_create_a_shopcart(self):
         """It should Create a Shopcart and assert that it exists"""
         fake_shopcart = ShopcartFactory()
-        shopcart = Shopcart(
-            items=fake_shopcart.items
-        )
+        shopcart = Shopcart(items=fake_shopcart.items)
         self.assertIsNotNone(shopcart)
         self.assertEqual(shopcart.id, None)
 
@@ -68,6 +67,17 @@ class TestShopcart(unittest.TestCase):
         self.assertIsNotNone(shopcart.id)
         shopcarts = Shopcart.all()
         self.assertEqual(len(shopcarts), 1)
+
+    def test_add_with_error_duplicate_customer_id(self):
+        """It should Raise an error if duplicate customer ID is used"""
+        shopcarts = Shopcart.all()
+        self.assertEqual(shopcarts, [])
+
+        shopcart = ShopcartFactory()
+        shopcart.create()
+        shopcart2 = ShopcartFactory()
+        shopcart2.customer_id = shopcart.customer_id
+        self.assertRaises(DataValidationError, shopcart2.create)
 
     def test_read_shopcart(self):
         """It should Read a Shopcart"""
@@ -139,10 +149,14 @@ class TestShopcart(unittest.TestCase):
         new_shopcart = Shopcart()
         new_shopcart.deserialize(serialized_shopcart)
         self.assertEqual(len(new_shopcart.items), len(shopcart.items))
-        self.assertEqual(new_shopcart.items[0].shopcart_id, shopcart.items[0].shopcart_id)
+        self.assertEqual(
+            new_shopcart.items[0].shopcart_id, shopcart.items[0].shopcart_id
+        )
         self.assertEqual(new_shopcart.items[0].price, shopcart.items[0].price)
         self.assertEqual(new_shopcart.items[0].quantity, shopcart.items[0].quantity)
-        self.assertEqual(new_shopcart.items[0].product_name, shopcart.items[0].product_name)
+        self.assertEqual(
+            new_shopcart.items[0].product_name, shopcart.items[0].product_name
+        )
 
     def test_deserialize_cart_item(self):
         """It should Deserialize a Cart Item"""
