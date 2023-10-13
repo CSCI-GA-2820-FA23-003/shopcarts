@@ -205,3 +205,13 @@ class Shopcart(db.Model, PersistentBase):
                 "bad or no attribute - " + error.args[0]
             ) from error
         return self
+
+    @classmethod
+    def find_by_customer_id(cls, customer_id):
+        """Returns shopcart with the given customer_id
+
+        Args:
+            customer_id (Integer): the id of the customer you want to match
+        """
+        logger.info("Processing customer id query for %s ...", customer_id)
+        return cls.query.filter(cls.customer_id == customer_id)

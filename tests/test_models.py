@@ -263,3 +263,13 @@ class TestShopcart(unittest.TestCase):
         # Fetch it back again
         shopcart = Shopcart.find(shopcart.id)
         self.assertEqual(len(shopcart.items), 0)
+
+    def test_find_by_customer_id(self):
+        """It should Find a shopcart by customer id"""
+        shopcart = ShopcartFactory()
+        shopcart.create()
+
+        # Fetch it back by customer id
+        same_shopcart = Shopcart.find_by_customer_id(shopcart.customer_id)[0]
+        self.assertEqual(same_shopcart.id, shopcart.id)
+        self.assertEqual(same_shopcart.customer_id, shopcart.customer_id)
