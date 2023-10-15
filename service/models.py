@@ -207,7 +207,7 @@ class Shopcart(db.Model, PersistentBase):
         return self
 
     @classmethod
-    def find_by_customer_id(cls, customer_id):
+    def find_shopcart_by_customer_id(cls, customer_id):
         """Returns shopcart with the given customer_id
 
         Args:

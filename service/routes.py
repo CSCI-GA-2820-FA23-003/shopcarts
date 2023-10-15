@@ -11,9 +11,6 @@ from service.models import CartItem, Shopcart
 from service.common import status  # HTTP Status Codes
 from . import app  # Import Flask application
 
-# Import Flask application
-from . import app
-
 
 ######################################################################
 # GET INDEX

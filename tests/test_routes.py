@@ -60,6 +60,10 @@ class TestYourResourceServer(TestCase):
         resp = self.client.get("/")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
+    ######################################################################
+    #  H E L P E R   M E T H O D S
+    ######################################################################
+
     def _create_shopcarts(self, count):
         """Create a shopcart"""
         shopcarts = []
@@ -76,7 +80,10 @@ class TestYourResourceServer(TestCase):
             shopcarts.append(shopcart)
         return shopcarts
 
-    # note: it needs the create shopcart finished to pass!
+    ######################################################################
+    #  S H O P C A R T   T E S T   C A S E S
+    ######################################################################
+
     def test_get_shopcarts_list(self):
         """It should get a list of shopcarts created"""
         self._create_shopcarts(5)
@@ -85,7 +92,7 @@ class TestYourResourceServer(TestCase):
         data = resp.get_json()
         self.assertEqual(len(data), 5)
 
-    def test_get_account_by_name(self):
+    def test_get_shopcarts_by_customer_id(self):
         """It should Get a shopcart by customer id"""
         shopcarts = self._create_shopcarts(3)
         resp = self.client.get(
