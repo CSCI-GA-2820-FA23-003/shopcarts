@@ -82,6 +82,22 @@ class TestYourResourceServer(TestCase):
     ######################################################################
     #  S H O P C A R T   T E S T   C A S E S
     ######################################################################
+    def test_create_shopcart_with_wrong_body_format(self):
+        """It should get a 415 bad request response"""
+        resp = self.client.post(BASE_URL)
+        self.assertEqual(resp.status_code, status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
+    
+    def test_create_shopcart_with_empty_body(self):
+        """It should get a 400 bad request response"""
+        resp = self.client.post(BASE_URL, json={})
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_create_shopcart_having_existed_shopcart(self):
+        """It should get a 400 bad request response"""
+        shopcart = self._create_shopcarts(1)
+        resp = self.client.post(BASE_URL, json={"customer_id":shopcart[0].customer_id})
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+
 
     def test_get_shopcarts_list(self):
         """It should get a list of shopcarts created"""
