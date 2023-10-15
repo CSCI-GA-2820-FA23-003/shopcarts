@@ -20,7 +20,7 @@ def index():
     """Root URL response"""
     return (
         jsonify(
-            name="Account REST API Service",
+            name="Shopcart REST API Service",
             version="1.0",
             paths=url_for("list_shopcarts", _external=True),
         ),
@@ -53,10 +53,10 @@ def list_shopcarts():
     # process the query string if any
     customer_id = request.args.get("customer_id")
     if customer_id:
-        shopcarts = Shopcart.find_by_customer_id(customer_id)
+        shopcarts = Shopcart.find_shopcart_by_customer_id(customer_id)
     else:
         shopcarts = Shopcart.all()
-    results = [shopcarts.serialize() for shopcart in shopcarts]
+    results = [shopcart.serialize() for shopcart in shopcarts]
 
     app.logger.info("Return %d shopcart in total.", len(results))
     return make_response(jsonify(results), status.HTTP_200_OK)
