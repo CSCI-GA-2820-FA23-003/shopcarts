@@ -101,3 +101,11 @@ class TestYourResourceServer(TestCase):
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = resp.get_json()
         self.assertEqual(data[0]["customer_id"], shopcarts[1].customer_id)
+
+    def test_get_shopcarts_by_customer_id_404NotFound(self):
+        """It should return 404 not found by given a non-existed customer id"""
+        shopcarts = self._create_shopcarts(3)
+        resp = self.client.get(
+            BASE_URL, query_string=f"customer_id={shopcarts[4].name}"
+        )
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
