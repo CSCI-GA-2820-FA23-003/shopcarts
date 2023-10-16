@@ -135,3 +135,88 @@ class TestYourResourceServer(TestCase):
         shopcarts = self._create_shopcarts(3)
         resp = self.client.get(BASE_URL, query_string=f"customer_id={4}")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+     ######################################################################
+    #  C A R T   I T E M   T E S T   C A S E S
+    ######################################################################
+
+    def test_add_cart_item(self):
+        """It should Add an cart item to a shopcart"""
+        shop_cart = self._create_shopcarts(1)[0]
+        cart_item = CartItemFactory()
+        resp = self.client.post(
+            f"{BASE_URL}/{shop_cart.id}/items",
+            json=cart_item.serialize(),
+            content_type="application/json",
+        )
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+        data = resp.get_json()
+        logging.debug(data)
+        self.assertEqual(data["shopcart_id"], shop_cart.id)
+        self.assertEqual(data["product_name"], cart_item.product_name)
+        self.assertEqual(data["quantity"], cart_item.quantity)
+        self.assertEqual(data["price"], cart_item.price)
+
+    def test_add_cart_item_no_quantity(self):
+        """It should default to a quantity of 1 when no quantity is provided"""
+        shop_cart = self._create_shopcarts(1)[0]
+        cart_item = CartItemFactory()
+    
+        # Remove the quantity from the cart_item
+        cart_item_data = {
+        'shopcart_id': cart_item.shopcart_id,
+        'product_name': cart_item.product_name,
+        'price': cart_item.price
+        }
+
+        resp = self.client.post(
+            f"{BASE_URL}/{shop_cart.id}/items",
+            json=cart_item_data,
+            content_type="application/json",
+        )
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+        data = resp.get_json()
+        logging.debug(data)
+        self.assertEqual(data["shopcart_id"], shop_cart.id)
+        self.assertEqual(data["product_name"], cart_item.product_name)
+    
+        # Assert that the quantity defaults to 1
+        self.assertEqual(data["quantity"], 1)
+        self.assertEqual(data["price"], cart_item.price)
+
+    def test_add_cart_item_having_existed_item(self):
+        """It should get a 400 bad request response"""
+        shop_cart = self._create_shopcarts(1)[0]
+        cart_item = CartItemFactory()
+        resp = self.client.post(
+            f"{BASE_URL}/{shop_cart.id}/items",
+            json=cart_item.serialize(),
+            content_type="application/json",
+        )
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+        data = resp.get_json()
+        logging.debug(data)
+        self.assertEqual(data["shopcart_id"], shop_cart.id)
+        self.assertEqual(data["product_name"], cart_item.product_name)
+        self.assertEqual(data["quantity"], cart_item.quantity)
+        self.assertEqual(data["price"], cart_item.price)
+
+        # The second attempt to add the same item
+        resp = self.client.post(
+            f"{BASE_URL}/{shop_cart.id}/items",
+            json=cart_item.serialize(),
+            content_type="application/json",
+        )
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_add_cart_item_without_existed_shopcart(self):
+        """It should get a 404 not found response"""
+        shop_cart = self._create_shopcarts(1)[0]
+        cart_item = CartItemFactory()
+        resp = self.client.post(
+            f"{BASE_URL}/{shop_cart.id + 1}/items",
+            json=cart_item.serialize(),
+            content_type="application/json",
+        )
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+   
