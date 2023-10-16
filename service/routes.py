@@ -36,12 +36,12 @@ def index():
 ######################################################################
 #  SHOPCART   A P I   E N D P O I N T S
 ######################################################################
-@app. route("/shopcarts", methods= ["POST"]) 
+@app.route("/shopcarts", methods= ["POST"])
 def create_shopcart():
     """
     Creates A SHOPCART FOR A CUSTOMER
     """
-    app.logger.info ("Request to create a shopcart") 
+    app.logger.info("Request to create a shopcart")
     check_content_type("application/json")
 
     shopcart = Shopcart()
@@ -93,8 +93,56 @@ def list_shopcarts():
 
 
 ######################################################################
-#  CARTITEM   A P I   E N D P O I N T S
+#  C A R T  I T E M   A P I   E N D P O I N T S
 ######################################################################
+
+@app.route("/shopcarts/<int:shopcart_id>/items", methods=["POST"])
+def create_items(shopcart_id):
+    """
+    Create an item on an Shopcart
+
+    This endpoint will add an item to the shopcart
+    """
+    app.logger.info("Request to create the item in the shopcart with id: %s", shopcart_id)
+    check_content_type("application/json")
+
+    # See if the shopcart exists and abort if it doesn't
+    shopcart = Shopcart.find(shopcart_id)
+    if not shopcart:
+        abort(
+            status.HTTP_404_NOT_FOUND,
+            f"Shopcart with id '{shopcart_id}' could not be found.",
+        )
+
+    # check if the item already exits in the shopcart
+    cart_items = CartItem.find_cart_item_by_shopcart_id_and_product_name(
+        shopcart_id, request.get_json()['product_name']
+    )
+
+    results = [cart_item.serialize() for cart_item in cart_items]
+    if len(results) > 0:
+        return make_response(
+            "Cart item already exists in the shopcart",
+            status.HTTP_400_BAD_REQUEST
+        )
+    # Create an cartItem from the json data
+    cart_item = CartItem()
+    data = request.get_json()
+
+    # Check if 'quantity' is in the data
+    if 'quantity' not in data:
+        data['quantity'] = 1
+
+    cart_item.deserialize(request.get_json())
+
+    # Append the address to the account
+    shopcart.items.append(cart_item)
+    shopcart.update()
+
+    # Prepare a message to return
+    message = cart_item.serialize()
+
+    return make_response(jsonify(message), status.HTTP_201_CREATED)
 
 ######################################################################
 #  U T I L I T Y   F U N C T I O N S
