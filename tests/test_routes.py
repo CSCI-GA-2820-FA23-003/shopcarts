@@ -6,6 +6,7 @@ Test cases can be run with the following:
   coverage report -m
 """
 import os
+import random
 import logging
 from unittest import TestCase
 from tests.factories import ShopcartFactory, CartItemFactory
@@ -82,6 +83,17 @@ class TestYourResourceServer(TestCase):
     ######################################################################
     #  S H O P C A R T   T E S T   C A S E S
     ######################################################################
+    def test_create_shopcart(self):
+        """It should Create a empty shopcart"""
+        customer_id = random.randint(1000, 9999)
+        resp = self.client.post(BASE_URL, json={"customer_id":customer_id, "items":[]})
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+
+        # Check the data is correct
+        new_shopcart = resp.get_json()
+        self.assertEqual(new_shopcart["customer_id"], customer_id, "customer_id does not match")
+        self.assertEqual(new_shopcart["items"], [], "Items does not match")
+
     def test_create_shopcart_with_wrong_body_format(self):
         """It should get a 415 bad request response"""
         resp = self.client.post(BASE_URL)
