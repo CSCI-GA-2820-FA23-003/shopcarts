@@ -5,7 +5,6 @@ Test cases can be run with the following:
   nosetests -v --with-spec --spec-color
   coverage report -m
 """
-import os
 import random
 import logging
 from unittest import TestCase
@@ -86,19 +85,23 @@ class TestYourResourceServer(TestCase):
     def test_create_shopcart(self):
         """It should Create a empty shopcart"""
         customer_id = random.randint(1000, 9999)
-        resp = self.client.post(BASE_URL, json={"customer_id":customer_id, "items":[]})
+        resp = self.client.post(
+            BASE_URL, json={"customer_id": customer_id, "items": []}
+        )
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
 
         # Check the data is correct
         new_shopcart = resp.get_json()
-        self.assertEqual(new_shopcart["customer_id"], customer_id, "customer_id does not match")
+        self.assertEqual(
+            new_shopcart["customer_id"], customer_id, "customer_id does not match"
+        )
         self.assertEqual(new_shopcart["items"], [], "Items does not match")
 
     def test_create_shopcart_with_wrong_body_format(self):
         """It should get a 415 bad request response"""
         resp = self.client.post(BASE_URL)
         self.assertEqual(resp.status_code, status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
-    
+
     def test_create_shopcart_with_empty_body(self):
         """It should get a 400 bad request response"""
         resp = self.client.post(BASE_URL, json={})
@@ -107,9 +110,8 @@ class TestYourResourceServer(TestCase):
     def test_create_shopcart_having_existed_shopcart(self):
         """It should get a 400 bad request response"""
         shopcart = self._create_shopcarts(1)
-        resp = self.client.post(BASE_URL, json={"customer_id":shopcart[0].customer_id})
+        resp = self.client.post(BASE_URL, json={"customer_id": shopcart[0].customer_id})
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
-
 
     def test_get_shopcarts_list(self):
         """It should get a list of shopcarts created"""
@@ -136,7 +138,26 @@ class TestYourResourceServer(TestCase):
         resp = self.client.get(BASE_URL, query_string=f"customer_id={4}")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
-     ######################################################################
+    def test_delete_shopcart(self):
+        """It should delete a shopcart"""
+        shopcart = self._create_shopcarts(1)[0]
+        resp = self.client.delete(f"{BASE_URL}/{shopcart.id}")
+        self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
+
+    def test_unsupported_media_type(self):
+        """It should not Create when sending wrong media type"""
+        shopcart = ShopcartFactory()
+        resp = self.client.post(
+            BASE_URL, json=shopcart.serialize(), content_type="test/html"
+        )
+        self.assertEqual(resp.status_code, status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
+
+    def test_method_not_allowed(self):
+        """It should not allow an illegal method call"""
+        resp = self.client.put(BASE_URL, json={"not": "today"})
+        self.assertEqual(resp.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    ######################################################################
     #  C A R T   I T E M   T E S T   C A S E S
     ######################################################################
 
@@ -161,12 +182,12 @@ class TestYourResourceServer(TestCase):
         """It should default to a quantity of 1 when no quantity is provided"""
         shop_cart = self._create_shopcarts(1)[0]
         cart_item = CartItemFactory()
-    
+
         # Remove the quantity from the cart_item
         cart_item_data = {
-        'shopcart_id': cart_item.shopcart_id,
-        'product_name': cart_item.product_name,
-        'price': cart_item.price
+            "shopcart_id": cart_item.shopcart_id,
+            "product_name": cart_item.product_name,
+            "price": cart_item.price,
         }
 
         resp = self.client.post(
@@ -179,7 +200,7 @@ class TestYourResourceServer(TestCase):
         logging.debug(data)
         self.assertEqual(data["shopcart_id"], shop_cart.id)
         self.assertEqual(data["product_name"], cart_item.product_name)
-    
+
         # Assert that the quantity defaults to 1
         self.assertEqual(data["quantity"], 1)
         self.assertEqual(data["price"], cart_item.price)
@@ -219,4 +240,3 @@ class TestYourResourceServer(TestCase):
             content_type="application/json",
         )
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
-   

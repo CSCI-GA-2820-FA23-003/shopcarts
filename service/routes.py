@@ -36,7 +36,7 @@ def index():
 ######################################################################
 #  SHOPCART   A P I   E N D P O I N T S
 ######################################################################
-@app.route("/shopcarts", methods= ["POST"])
+@app.route("/shopcarts", methods=["POST"])
 def create_shopcart():
     """
     Creates A SHOPCART FOR A CUSTOMER
@@ -48,14 +48,18 @@ def create_shopcart():
     shopcart.deserialize(request.get_json())
 
     # check if no customer_id passing in the body
-    if not request.get_json()['customer_id']:
-        return make_response("Missing customer_id in request body.", status.HTTP_400_BAD_REQUEST)
+    if not request.get_json()["customer_id"]:
+        return make_response(
+            "Missing customer_id in request body.", status.HTTP_400_BAD_REQUEST
+        )
 
     # check if the customer already have a shopcart
-    shopcarts = Shopcart.find_shopcart_by_customer_id(request.get_json()['customer_id'])
+    shopcarts = Shopcart.find_shopcart_by_customer_id(request.get_json()["customer_id"])
     results = [shopcart.serialize() for shopcart in shopcarts]
     if len(results) > 0:
-        return make_response("Customer already have a shopcart", status.HTTP_400_BAD_REQUEST)
+        return make_response(
+            "Customer already have a shopcart", status.HTTP_400_BAD_REQUEST
+        )
 
     shopcart.create()
 
@@ -64,9 +68,10 @@ def create_shopcart():
     location_url = url_for(
         "create_shopcart", customer_id=shopcart.customer_id, _external=True
     )
-    return make_response (
+    return make_response(
         jsonify(message), status.HTTP_201_CREATED, {"Location": location_url}
     )
+
 
 @app.route("/shopcarts")
 def list_shopcarts():
@@ -76,7 +81,7 @@ def list_shopcarts():
 
     return: a list of shopcarts in the DB
     """
-    app.logger.info("Get all shopcats exsited in database.")
+    app.logger.info("Get all shopcats in database.")
 
     shopcarts = []
 
@@ -92,9 +97,23 @@ def list_shopcarts():
     return make_response(jsonify(results), status.HTTP_200_OK)
 
 
+@app.route("/shopcarts/<int:shopcart_id>", methods=["DELETE"])
+def delete_shopcart(shopcart_id):
+    """Delete a shopcart given shopcart id"""
+    app.logger.info("Delete the shopcart with id: %s", shopcart_id)
+
+    shopcart = Shopcart.find(shopcart_id)
+    # note: if shopcart not exist, do nothing
+    if shopcart:
+        shopcart.delete()
+
+    return make_response("", status.HTTP_204_NO_CONTENT)
+
+
 ######################################################################
 #  C A R T  I T E M   A P I   E N D P O I N T S
 ######################################################################
+
 
 @app.route("/shopcarts/<int:shopcart_id>/items", methods=["POST"])
 def create_items(shopcart_id):
@@ -103,7 +122,9 @@ def create_items(shopcart_id):
 
     This endpoint will add an item to the shopcart
     """
-    app.logger.info("Request to create the item in the shopcart with id: %s", shopcart_id)
+    app.logger.info(
+        "Request to create the item in the shopcart with id: %s", shopcart_id
+    )
     check_content_type("application/json")
 
     # See if the shopcart exists and abort if it doesn't
@@ -116,22 +137,21 @@ def create_items(shopcart_id):
 
     # check if the item already exits in the shopcart
     cart_items = CartItem.find_cart_item_by_shopcart_id_and_product_name(
-        shopcart_id, request.get_json()['product_name']
+        shopcart_id, request.get_json()["product_name"]
     )
 
     results = [cart_item.serialize() for cart_item in cart_items]
     if len(results) > 0:
         return make_response(
-            "Cart item already exists in the shopcart",
-            status.HTTP_400_BAD_REQUEST
+            "Cart item already exists in the shopcart", status.HTTP_400_BAD_REQUEST
         )
     # Create an cartItem from the json data
     cart_item = CartItem()
     data = request.get_json()
 
     # Check if 'quantity' is in the data
-    if 'quantity' not in data:
-        data['quantity'] = 1
+    if "quantity" not in data:
+        data["quantity"] = 1
 
     cart_item.deserialize(request.get_json())
 
@@ -143,6 +163,7 @@ def create_items(shopcart_id):
     message = cart_item.serialize()
 
     return make_response(jsonify(message), status.HTTP_201_CREATED)
+
 
 ######################################################################
 #  U T I L I T Y   F U N C T I O N S
