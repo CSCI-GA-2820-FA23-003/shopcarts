@@ -36,6 +36,26 @@ def index():
 ######################################################################
 #  SHOPCART   A P I   E N D P O I N T S
 ######################################################################
+@app.route("/shopcarts/<int:shopcart_id>", methods=["GET"])
+def get_shopcart_by_id(shopcart_id):
+    """
+    Retrieve a single Shopcart
+
+    This endpoint will return a Shopcart based on it's id
+    """
+    app.logger.info("Request for Shopcart with id: %s", shopcart_id)
+
+    # See if the shopcart exists and abort if it doesn't
+    shopcart = Shopcart.find(shopcart_id)
+    if not shopcart:
+        abort(
+            status.HTTP_404_NOT_FOUND,
+            f"Shopcart with id '{shopcart_id}' could not be found.",
+        )
+
+    return make_response(jsonify(shopcart.serialize()), status.HTTP_200_OK)
+
+
 @app.route("/shopcarts", methods=["POST"])
 def create_shopcart():
     """
@@ -81,7 +101,7 @@ def list_shopcarts():
 
     return: a list of shopcarts in the DB
     """
-    app.logger.info("Get all shopcats in database.")
+    app.logger.info("Get all shopcarts in database.")
 
     shopcarts = []
 
@@ -155,7 +175,7 @@ def create_items(shopcart_id):
 
     cart_item.deserialize(request.get_json())
 
-    # Append the address to the account
+    # Append the item to the shopcart
     shopcart.items.append(cart_item)
     shopcart.update()
 

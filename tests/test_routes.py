@@ -121,6 +121,22 @@ class TestYourResourceServer(TestCase):
         data = resp.get_json()
         self.assertEqual(len(data), 5)
 
+    def test_get_shopcart_by_id(self):
+        """It should Get a Shopcart by shopcart_id"""
+        # get the id of an shopcart
+        shopcart = self._create_shopcarts(1)[0]
+        resp = self.client.get(
+            f"{BASE_URL}/{shopcart.id}", content_type="application/json"
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.get_json()
+        self.assertEqual(data["customer_id"], shopcart.customer_id)
+
+    def test_get_shopcart_by_id_404(self):
+        """It should return a 404 error if shopcart with given id is not found"""
+        resp = self.client.get(f"{BASE_URL}/0")
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
     def test_get_shopcarts_by_customer_id(self):
         """It should Get a shopcart by customer id"""
         shopcarts = self._create_shopcarts(3)
