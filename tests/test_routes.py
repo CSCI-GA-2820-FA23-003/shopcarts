@@ -240,3 +240,60 @@ class TestYourResourceServer(TestCase):
             content_type="application/json",
         )
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_get_item_list(self):
+        """It should Get a list of items"""
+        # add two items to the shopcart
+        shop_cart = self._create_shopcarts(1)[0]
+
+        # Create an item from cart item factory
+        cart_item1 = CartItemFactory()
+        resp = self.client.post(
+            f"{BASE_URL}/{shop_cart.id}/items", json=cart_item1.serialize()
+        )
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+
+        # Create the second item by modifying the first one to ensure their difference
+        cart_item2_data = {
+            "shopcart_id": cart_item1.shopcart_id,
+            "product_name": cart_item1.product_name + "No.2",
+            "price": cart_item1.price,
+        }
+        resp = self.client.post(
+            f"{BASE_URL}/{shop_cart.id}/items", json=cart_item2_data
+        )
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+
+        # get the list back and make sure there are 2
+        resp = self.client.get(f"{BASE_URL}/{shop_cart.id}/items")
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+        data = resp.get_json()
+        self.assertEqual(len(data), 2)
+
+    def test_get_item_list_without_existed_shopcart(self):
+        """It should get a 404 not found response"""
+        # add two items to the shopcart
+        shop_cart = self._create_shopcarts(1)[0]
+
+        # Create an item from cart item factory
+        cart_item1 = CartItemFactory()
+        resp = self.client.post(
+            f"{BASE_URL}/{shop_cart.id}/items", json=cart_item1.serialize()
+        )
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+
+        # Create the second item by modifying the first one to ensure their difference
+        cart_item2_data = {
+            "shopcart_id": cart_item1.shopcart_id,
+            "product_name": cart_item1.product_name + "No.2",
+            "price": cart_item1.price,
+        }
+        resp = self.client.post(
+            f"{BASE_URL}/{shop_cart.id}/items", json=cart_item2_data
+        )
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+
+        # Try to get the list back with shop cart id that doesn't exist
+        resp = self.client.get(f"{BASE_URL}/{shop_cart.id + 1}/items")
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
