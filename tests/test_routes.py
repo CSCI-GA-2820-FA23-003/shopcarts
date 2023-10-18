@@ -5,7 +5,6 @@ Test cases can be run with the following:
   nosetests -v --with-spec --spec-color
   coverage report -m
 """
-import os
 import random
 import logging
 from unittest import TestCase
@@ -122,6 +121,22 @@ class TestYourResourceServer(TestCase):
         data = resp.get_json()
         self.assertEqual(len(data), 5)
 
+    def test_get_shopcart_by_id(self):
+        """It should Get a Shopcart by shopcart_id"""
+        # get the id of an shopcart
+        shopcart = self._create_shopcarts(1)[0]
+        resp = self.client.get(
+            f"{BASE_URL}/{shopcart.id}", content_type="application/json"
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.get_json()
+        self.assertEqual(data["customer_id"], shopcart.customer_id)
+
+    def test_get_shopcart_by_id_404(self):
+        """It should return a 404 error if shopcart with given id is not found"""
+        resp = self.client.get(f"{BASE_URL}/0")
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
     def test_get_shopcarts_by_customer_id(self):
         """It should Get a shopcart by customer id"""
         shopcarts = self._create_shopcarts(3)
@@ -139,11 +154,29 @@ class TestYourResourceServer(TestCase):
         resp = self.client.get(BASE_URL, query_string=f"customer_id={4}")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
+    def test_delete_shopcart(self):
+        """It should delete a shopcart"""
+        shopcart = self._create_shopcarts(1)[0]
+        resp = self.client.delete(f"{BASE_URL}/{shopcart.id}")
+        self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
+
+    def test_unsupported_media_type(self):
+        """It should not Create when sending wrong media type"""
+        shopcart = ShopcartFactory()
+        resp = self.client.post(
+            BASE_URL, json=shopcart.serialize(), content_type="test/html"
+        )
+        self.assertEqual(resp.status_code, status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
+
+    def test_method_not_allowed(self):
+        """It should not allow an illegal method call"""
+        resp = self.client.put(BASE_URL, json={"not": "today"})
+        self.assertEqual(resp.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+
     ######################################################################
     #  C A R T   I T E M   T E S T   C A S E S
     ######################################################################
 
-    ### ADD ###
     def test_add_cart_item(self):
         """It should Add an cart item to a shopcart"""
         shop_cart = self._create_shopcarts(1)[0]
@@ -224,7 +257,64 @@ class TestYourResourceServer(TestCase):
         )
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
-    ### UPDATE ###
+    def test_get_item_list(self):
+        """It should Get a list of items"""
+        # add two items to the shopcart
+        shop_cart = self._create_shopcarts(1)[0]
+
+        # Create an item from cart item factory
+        cart_item1 = CartItemFactory()
+        resp = self.client.post(
+            f"{BASE_URL}/{shop_cart.id}/items", json=cart_item1.serialize()
+        )
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+
+        # Create the second item by modifying the first one to ensure their difference
+        cart_item2_data = {
+            "shopcart_id": cart_item1.shopcart_id,
+            "product_name": cart_item1.product_name + "No.2",
+            "price": cart_item1.price,
+        }
+        resp = self.client.post(
+            f"{BASE_URL}/{shop_cart.id}/items", json=cart_item2_data
+        )
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+
+        # get the list back and make sure there are 2
+        resp = self.client.get(f"{BASE_URL}/{shop_cart.id}/items")
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+        data = resp.get_json()
+        self.assertEqual(len(data), 2)
+
+    def test_get_item_list_without_existed_shopcart(self):
+        """It should get a 404 not found response"""
+        # add two items to the shopcart
+        shop_cart = self._create_shopcarts(1)[0]
+
+        # Create an item from cart item factory
+        cart_item1 = CartItemFactory()
+        resp = self.client.post(
+            f"{BASE_URL}/{shop_cart.id}/items", json=cart_item1.serialize()
+        )
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+
+        # Create the second item by modifying the first one to ensure their difference
+        cart_item2_data = {
+            "shopcart_id": cart_item1.shopcart_id,
+            "product_name": cart_item1.product_name + "No.2",
+            "price": cart_item1.price,
+        }
+        resp = self.client.post(
+            f"{BASE_URL}/{shop_cart.id}/items", json=cart_item2_data
+        )
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+
+        # Try to get the list back with shop cart id that doesn't exist
+        resp = self.client.get(f"{BASE_URL}/{shop_cart.id + 1}/items")
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
+    ### TEST ITEM QUANTITY UPDATE ###
     def test_update_item_quantity_shopcart_not_found(self):
         """It should return a 404 NOT FOUND response when the shopcart is not found"""
         # Update the quantity of an item in a non-existent shopcart

@@ -83,16 +83,16 @@ Endpoint          Methods  Rule
 ----------------  -------  -----------------------------------------------------
 index             GET      /
 
-list_shopcarts     GET      /???
-create_shopcarts   POST     /???
-get_shopcarts      GET      /???/<???>
+list_shopcarts     GET      /shopcarts
+create_shopcarts   POST     shopcarts
+get_shopcarts      GET      /shopcarts/<int:shopcart_id>
 update_shopcarts   PUT      /???/<???>
-delete_shopcarts   DELETE   /???/<???>
+delete_shopcarts   DELETE   /shopcarts/<int:shopcart_id>
 
-list_cart_items    GET      /???/<int:???>/???
-create_cart_items  POST     /shopcarts/<shopcart_id>/items
+list_cart_items    GET      /shopcarts/<int:shopcart_id>/items
+create_cart_items  POST     /shopcarts/<int:shopcart_id>/items
 get_cart_items     GET      /???/<???>/???/<???>
-update_cart_items  PUT      /shopcarts/<int:shopcart_id>/items/<int:item_id>
+update_cart_items  PUT      /shopcarts/<int:shopcart_id>/items/<string:product_name>
 delete_cart_items  DELETE   /???/<???>/???/<???>
 ```
 

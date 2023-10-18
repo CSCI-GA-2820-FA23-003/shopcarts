@@ -36,6 +36,26 @@ def index():
 ######################################################################
 #  SHOPCART   A P I   E N D P O I N T S
 ######################################################################
+@app.route("/shopcarts/<int:shopcart_id>", methods=["GET"])
+def get_shopcart_by_id(shopcart_id):
+    """
+    Retrieve a single Shopcart
+
+    This endpoint will return a Shopcart based on it's id
+    """
+    app.logger.info("Request for Shopcart with id: %s", shopcart_id)
+
+    # See if the shopcart exists and abort if it doesn't
+    shopcart = Shopcart.find(shopcart_id)
+    if not shopcart:
+        abort(
+            status.HTTP_404_NOT_FOUND,
+            f"Shopcart with id '{shopcart_id}' could not be found.",
+        )
+
+    return make_response(jsonify(shopcart.serialize()), status.HTTP_200_OK)
+
+
 @app.route("/shopcarts", methods=["POST"])
 def create_shopcart():
     """
@@ -81,7 +101,7 @@ def list_shopcarts():
 
     return: a list of shopcarts in the DB
     """
-    app.logger.info("Get all shopcats exsited in database.")
+    app.logger.info("Get all shopcarts in database.")
 
     shopcarts = []
 
@@ -95,6 +115,19 @@ def list_shopcarts():
 
     app.logger.info("Return %d shopcart in total.", len(results))
     return make_response(jsonify(results), status.HTTP_200_OK)
+
+
+@app.route("/shopcarts/<int:shopcart_id>", methods=["DELETE"])
+def delete_shopcart(shopcart_id):
+    """Delete a shopcart given shopcart id"""
+    app.logger.info("Delete the shopcart with id: %s", shopcart_id)
+
+    shopcart = Shopcart.find(shopcart_id)
+    # note: if shopcart not exist, do nothing
+    if shopcart:
+        shopcart.delete()
+
+    return make_response("", status.HTTP_204_NO_CONTENT)
 
 
 ######################################################################
@@ -142,7 +175,7 @@ def create_items(shopcart_id):
 
     cart_item.deserialize(request.get_json())
 
-    # Append the address to the account
+    # Append the item to the shopcart
     shopcart.items.append(cart_item)
     shopcart.update()
 
@@ -152,7 +185,26 @@ def create_items(shopcart_id):
     return make_response(jsonify(message), status.HTTP_201_CREATED)
 
 
-# UPDATE AN EXISTING ITEM QUANTITATIVELY
+@app.route("/shopcarts/<int:shopcart_id>/items", methods=["GET"])
+def list_items(shopcart_id):
+    """Returns all of the cart items for a Shopcart"""
+    app.logger.info("Request for all cart items for Shopcart with id: %s", shopcart_id)
+
+    # See if the shopcart exists and abort if it doesn't
+    shopcart = Shopcart.find(shopcart_id)
+    if not shopcart:
+        abort(
+            status.HTTP_404_NOT_FOUND,
+            f"Shopcart with id '{shopcart_id}' could not be found.",
+        )
+
+    # Get the list of cart items from the shopcart
+    results = [item.serialize() for item in shopcart.items]
+
+    return make_response(jsonify(results), status.HTTP_200_OK)
+
+
+# UPDATE AN EXISTING ITEM'S QUANTITY
 @app.route("/shopcarts/<int:shopcart_id>/items/<string:product_name>", methods=["PUT"])
 def update_items(shopcart_id, product_name):
     """
