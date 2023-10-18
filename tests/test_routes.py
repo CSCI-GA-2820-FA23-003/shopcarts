@@ -86,19 +86,23 @@ class TestYourResourceServer(TestCase):
     def test_create_shopcart(self):
         """It should Create a empty shopcart"""
         customer_id = random.randint(1000, 9999)
-        resp = self.client.post(BASE_URL, json={"customer_id":customer_id, "items":[]})
+        resp = self.client.post(
+            BASE_URL, json={"customer_id": customer_id, "items": []}
+        )
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
 
         # Check the data is correct
         new_shopcart = resp.get_json()
-        self.assertEqual(new_shopcart["customer_id"], customer_id, "customer_id does not match")
+        self.assertEqual(
+            new_shopcart["customer_id"], customer_id, "customer_id does not match"
+        )
         self.assertEqual(new_shopcart["items"], [], "Items does not match")
 
     def test_create_shopcart_with_wrong_body_format(self):
         """It should get a 415 bad request response"""
         resp = self.client.post(BASE_URL)
         self.assertEqual(resp.status_code, status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
-    
+
     def test_create_shopcart_with_empty_body(self):
         """It should get a 400 bad request response"""
         resp = self.client.post(BASE_URL, json={})
@@ -107,9 +111,8 @@ class TestYourResourceServer(TestCase):
     def test_create_shopcart_having_existed_shopcart(self):
         """It should get a 400 bad request response"""
         shopcart = self._create_shopcarts(1)
-        resp = self.client.post(BASE_URL, json={"customer_id":shopcart[0].customer_id})
+        resp = self.client.post(BASE_URL, json={"customer_id": shopcart[0].customer_id})
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
-
 
     def test_get_shopcarts_list(self):
         """It should get a list of shopcarts created"""
@@ -136,10 +139,11 @@ class TestYourResourceServer(TestCase):
         resp = self.client.get(BASE_URL, query_string=f"customer_id={4}")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
-     ######################################################################
+    ######################################################################
     #  C A R T   I T E M   T E S T   C A S E S
     ######################################################################
 
+    ### ADD ###
     def test_add_cart_item(self):
         """It should Add an cart item to a shopcart"""
         shop_cart = self._create_shopcarts(1)[0]
@@ -161,12 +165,12 @@ class TestYourResourceServer(TestCase):
         """It should default to a quantity of 1 when no quantity is provided"""
         shop_cart = self._create_shopcarts(1)[0]
         cart_item = CartItemFactory()
-    
+
         # Remove the quantity from the cart_item
         cart_item_data = {
-        'shopcart_id': cart_item.shopcart_id,
-        'product_name': cart_item.product_name,
-        'price': cart_item.price
+            "shopcart_id": cart_item.shopcart_id,
+            "product_name": cart_item.product_name,
+            "price": cart_item.price,
         }
 
         resp = self.client.post(
@@ -179,7 +183,7 @@ class TestYourResourceServer(TestCase):
         logging.debug(data)
         self.assertEqual(data["shopcart_id"], shop_cart.id)
         self.assertEqual(data["product_name"], cart_item.product_name)
-    
+
         # Assert that the quantity defaults to 1
         self.assertEqual(data["quantity"], 1)
         self.assertEqual(data["price"], cart_item.price)
@@ -219,4 +223,129 @@ class TestYourResourceServer(TestCase):
             content_type="application/json",
         )
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
-   
+
+    ### UPDATE ###
+    def test_update_item_quantity_shopcart_not_found(self):
+        """It should return a 404 NOT FOUND response when the shopcart is not found"""
+        # Update the quantity of an item in a non-existent shopcart
+        non_existent_shopcart_id = 9999999
+        product_name = "NonExistentProduct"
+        update_data = {"quantity": 8}
+        resp = self.client.put(
+            f"{BASE_URL}/{non_existent_shopcart_id}/items/{product_name}",
+            json=update_data,
+            content_type="application/json",
+        )
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+        # Check the response
+        data = resp.get_data(as_text=True)
+        self.assertIn(
+            f"Shopcart with id '{non_existent_shopcart_id}' could not be found", data
+        )
+
+    def test_update_item_quantity_product_not_found(self):
+        """It should return a 404 NOT FOUND response when the product is not found in the shopcart"""
+        shop_cart = self._create_shopcarts(1)[0]
+        non_existent_product_name = "NonExistentProduct"
+        new_quantity = 8
+        # Update the quantity of a non-existent product in the shopcart
+        update_data = {"quantity": new_quantity}
+        resp = self.client.put(
+            f"{BASE_URL}/{shop_cart.id}/items/{non_existent_product_name}",
+            json=update_data,
+            content_type="application/json",
+        )
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+        # Check the response
+        data = resp.get_json()  # Assuming your response is in JSON format
+        self.assertEqual(data["error"], "Not Found")
+        self.assertIn(
+            f"Product '{non_existent_product_name}' not found in shopcart {shop_cart.id}",
+            data["message"],
+        )
+
+    def test_update_item_quantity(self):
+        """It should successfully update the quantity of a cart item in a shopcart"""
+        # Create a shopcart
+        shop_cart = self._create_shopcarts(1)[0]
+        # Create a cart item with an initial quantity
+        cart_item = CartItemFactory()
+        # Add the cart item to the shopcart
+        resp = self.client.post(
+            f"{BASE_URL}/{shop_cart.id}/items",
+            json=cart_item.serialize(),
+            content_type="application/json",
+        )
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+        # Define the new quantity for the cart item
+        new_quantity = 10
+        # Retrieve the cart item for testing
+        cart_item_for_testing = CartItem.find_cart_item_by_shopcart_id_and_product_name(
+            shop_cart.id, cart_item.product_name
+        )[0]
+        # Update the cart item's quantity
+        update_data = {"quantity": new_quantity}
+        resp = self.client.put(
+            f"{BASE_URL}/{shop_cart.id}/items/{cart_item.product_name}",
+            json=update_data,
+            content_type="application/json",
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        # Check the response data
+        data = resp.get_json()
+        logging.debug(data)
+        # Verify the response contains the updated quantity
+        self.assertEqual(
+            data["log"],
+            f"Quantity of '{cart_item.product_name}' in shopcart {shop_cart.id} updated to {new_quantity}",
+        )
+        # Verify the cart item's quantity is updated
+        self.assertEqual(cart_item_for_testing.quantity, new_quantity)
+
+    def test_update_item_quantity_negative_integer(self):
+        """It should return a 400 BAD REQUEST response for a negative integer quantity"""
+        shop_cart = self._create_shopcarts(1)[0]
+        cart_item = CartItemFactory()
+        resp = self.client.post(
+            f"{BASE_URL}/{shop_cart.id}/items",
+            json=cart_item.serialize(),
+            content_type="application/json",
+        )
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+        # Update the quantity with a negative integer
+        negative_quantity = -88
+        update_data = {"quantity": negative_quantity}
+        resp = self.client.put(
+            f"{BASE_URL}/{shop_cart.id}/items/{cart_item.product_name}",
+            json=update_data,
+            content_type="application/json",
+        )
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+        # Check the response
+        data = resp.get_json()  # Assuming your response is in JSON format
+        self.assertEqual(data["error"], "Bad Request")
+        self.assertIn("Quantity must be a positive integer", data["message"])
+
+    def test_update_item_quantity_decimal(self):
+        """It should return a 400 BAD REQUEST response for a decimal (non-integer) quantity"""
+        shop_cart = self._create_shopcarts(1)[0]
+        cart_item = CartItemFactory()
+        resp = self.client.post(
+            f"{BASE_URL}/{shop_cart.id}/items",
+            json=cart_item.serialize(),
+            content_type="application/json",
+        )
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+        # Update the quantity with a decimal value
+        decimal_quantity = 8.8
+        update_data = {"quantity": decimal_quantity}
+        resp = self.client.put(
+            f"{BASE_URL}/{shop_cart.id}/items/{cart_item.product_name}",
+            json=update_data,
+            content_type="application/json",
+        )
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+        # Check the response
+        data = resp.get_json()  # Assuming your response is in JSON format
+        self.assertEqual(data["error"], "Bad Request")
+        self.assertIn("Quantity must be a positive integer", data["message"])

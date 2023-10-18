@@ -58,6 +58,8 @@ class PersistentBase:
         Updates a Shopcart to the database
         """
         logger.info("Updating %s", self.id)
+        if not self.id:
+            raise DataValidationError("Update called with empty ID field")
         db.session.commit()
 
     def delete(self):
@@ -146,15 +148,24 @@ class CartItem(db.Model, PersistentBase):
         return self
 
     @classmethod
-    def find_cart_item_by_shopcart_id_and_product_name (cls, shopcart_id, product_name):
+    def find_cart_item_by_shopcart_id_and_product_name(cls, shopcart_id, product_name):
         """Returns shopcart with the given customer_id
 
         Args:
             shopcart_id (Integer): the id of the customer you want to match
             product_name (String): the name of the product you want to match
         """
-        logger.info("Processing shopcart_id and product_name query for %s and %s ...", shopcart_id, product_name)
-        return cls.query.filter(cls.shopcart_id == shopcart_id).filter(cls.product_name == product_name).all()
+        logger.info(
+            "Processing shopcart_id and product_name query for %s and %s ...",
+            shopcart_id,
+            product_name,
+        )
+        return (
+            cls.query.filter(cls.shopcart_id == shopcart_id)
+            .filter(cls.product_name == product_name)
+            .all()
+        )
+
 
 ######################################################################
 #  S H O P C A R T   M O D E L
