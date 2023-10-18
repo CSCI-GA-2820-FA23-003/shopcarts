@@ -204,6 +204,65 @@ def list_items(shopcart_id):
     return make_response(jsonify(results), status.HTTP_200_OK)
 
 
+# UPDATE AN EXISTING ITEM'S QUANTITY
+@app.route("/shopcarts/<int:shopcart_id>/items/<string:product_name>", methods=["PUT"])
+def update_items(shopcart_id, product_name):
+    """
+    Update an item in the shopcart quantitatively
+    """
+    app.logger.info(
+        "Request to update item quantity with shopcart_id: %s, and product_name: %s",
+        shopcart_id,
+        product_name,
+    )
+    check_content_type("application/json")
+
+    # Check if the shopcart exists and abort if it doesn't (Same as in create_items)
+    shopcart = Shopcart.find(shopcart_id)
+    if not shopcart:
+        abort(
+            status.HTTP_404_NOT_FOUND,
+            f"Shopcart with id '{shopcart_id}' could not be found.",
+        )
+
+    # Locate the product in the shopcart
+    cart_items = CartItem.find_cart_item_by_shopcart_id_and_product_name(
+        shopcart_id, product_name
+    )
+
+    if not cart_items:
+        # Return a 404 response if the product is not found in the shopcart
+        abort(
+            status.HTTP_404_NOT_FOUND,
+            f"Product '{product_name}' not found in shopcart {shopcart_id}",
+        )
+
+    # Get new quantity from the request JSON
+    request_data = request.get_json()
+    new_quantity = request_data.get("quantity")
+
+    if new_quantity is not None:
+        # Check if the new quantity is a positive integer
+        if not isinstance(new_quantity, int) or new_quantity <= 0:
+            abort(
+                status.HTTP_400_BAD_REQUEST,
+                "Quantity must be a positive integer.",
+            )
+        # Update the quantity
+        cart_item = cart_items[0]
+        cart_item.quantity = new_quantity
+        cart_item.update()
+
+        return make_response(
+            jsonify(
+                {
+                    "log": f"Quantity of '{product_name}' in shopcart {shopcart_id} updated to {new_quantity}"
+                }
+            ),
+            status.HTTP_200_OK,
+        )
+
+
 ######################################################################
 #  U T I L I T Y   F U N C T I O N S
 ######################################################################
