@@ -313,3 +313,40 @@ class TestYourResourceServer(TestCase):
         # Try to get the list back with shop cart id that doesn't exist
         resp = self.client.get(f"{BASE_URL}/{shop_cart.id + 1}/items")
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_delete_item_with_existing_item(self):
+        """It should Delete an item from a customers shopcart"""        
+        shop_cart = self._create_shopcarts(1)[0]
+        cart_item = CartItemFactory()
+        cart_item_data = {
+            "shopcart_id": cart_item.shopcart_id,
+            "product_name": cart_item.product_name,
+            "price": cart_item.price,
+        }
+
+        resp = self.client.post(
+            f"{BASE_URL}/{shop_cart.id}/items",
+            json=cart_item_data,
+            content_type="application/json",
+        )
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+        data = resp.get_json()
+        logging.debug(data)
+
+        # send delete request
+        resp = self.client.delete(
+            f"{BASE_URL}/{shop_cart.id}/items/{data['id']}",
+            content_type="application/json",
+        )
+        self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
+    
+    def test_delete_item_without_existing_item(self):
+        """It should return HTTP_404_NOT_FOUND"""
+        # send delete request
+        shop_cart = self._create_shopcarts(1)[0]
+        item_id = random.randint(1000, 9999)
+        resp = self.client.delete(
+            f"{BASE_URL}/{shop_cart.id}/items/{item_id}",
+            content_type="application/json",
+        )
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)

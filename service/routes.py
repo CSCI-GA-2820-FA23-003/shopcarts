@@ -203,6 +203,26 @@ def list_items(shopcart_id):
 
     return make_response(jsonify(results), status.HTTP_200_OK)
 
+@app.route("/shopcarts/<int:shopcart_id>/items/<int:item_id>", methods=["DELETE"])
+def delete_item(shopcart_id, item_id):
+    """
+    Delete an item from a customer shopcart
+
+    This endpoint will delete an item based the id specified in the path
+    """
+    app.logger.info("Request to delete item %s for shopcart_id: %s", item_id, shopcart_id)
+
+    # See if the item exists and delete it if it does
+    item = CartItem.find(item_id)
+    # note: if shopcart not exist, do nothing
+    if item:
+        item.delete()
+    else:
+        abort(
+            status.HTTP_404_NOT_FOUND,
+            f"Item with id '{item_id}' could not be found.",
+        )
+    return make_response("", status.HTTP_204_NO_CONTENT)
 
 ######################################################################
 #  U T I L I T Y   F U N C T I O N S
