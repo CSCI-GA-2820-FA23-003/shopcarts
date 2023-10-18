@@ -273,3 +273,25 @@ class TestShopcart(unittest.TestCase):
         same_shopcart = Shopcart.find_shopcart_by_customer_id(shopcart.customer_id)[0]
         self.assertEqual(same_shopcart.id, shopcart.id)
         self.assertEqual(same_shopcart.customer_id, shopcart.customer_id)
+
+    def test_clear_items(self):
+        """It should clear all CartItems in a Shopcart"""
+        shopcarts = Shopcart.all()
+        self.assertEqual(shopcarts, [])
+
+        shopcart = ShopcartFactory()
+        [CartItemFactory(shopcart=shopcart) for _ in range(3)]
+        shopcart.create()
+        # Assert that it was assigned an id and shows up in the database
+        self.assertIsNotNone(shopcart.id)
+        shopcarts = Shopcart.all()
+        self.assertEqual(len(shopcarts), 1)
+
+        # Fetch it back
+        shopcart = Shopcart.find(shopcart.id)
+        shopcart.clear_items()
+        shopcart.update()
+
+        # Fetch it back again
+        shopcart = Shopcart.find(shopcart.id)
+        self.assertEqual(len(shopcart.items), 0)

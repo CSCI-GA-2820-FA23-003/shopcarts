@@ -227,6 +227,14 @@ class Shopcart(db.Model, PersistentBase):
             ) from error
         return self
 
+
+    def clear_items(self) -> None:
+        """
+        Deletes all CartItems in the shopcart
+        """
+        for item in self.items:
+            item.delete()
+
     @classmethod
     def find_shopcart_by_customer_id(cls, customer_id):
         """Returns shopcart with the given customer_id
