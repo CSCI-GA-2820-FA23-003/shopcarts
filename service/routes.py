@@ -93,6 +93,33 @@ def create_shopcart():
     )
 
 
+@app.route("/shopcarts/<int:shopcart_id>", methods=["PUT"])
+def update_shopcart(shopcart_id):
+    """
+    Edit existing shopcart for a customer
+    """
+    app.logger.info("Request to edit a shopcart")
+    check_content_type("application/json")
+
+    shopcart: Shopcart = Shopcart.find(shopcart_id)
+
+    if not shopcart:
+        abort(
+            status.HTTP_404_NOT_FOUND,
+            f"Shopcart with id '{shopcart_id}' could not be found.",
+        )
+
+    shopcart.clear_items()
+    shopcart.deserialize(request.get_json())
+    shopcart.update()
+
+    message = shopcart.serialize()
+    location_url = url_for("update_shopcart", shopcart_id=shopcart.id, _external=True)
+    return make_response(
+        jsonify(message), status.HTTP_200_OK, {"Location": location_url}
+    )
+
+
 @app.route("/shopcarts")
 def list_shopcarts():
     """
@@ -203,6 +230,7 @@ def list_items(shopcart_id):
 
     return make_response(jsonify(results), status.HTTP_200_OK)
 
+
 @app.route("/shopcarts/<int:shopcart_id>/items/<int:item_id>", methods=["DELETE"])
 def delete_item(shopcart_id, item_id):
     """
@@ -223,6 +251,7 @@ def delete_item(shopcart_id, item_id):
             f"Item with id '{item_id}' could not be found.",
         )
     return make_response("", status.HTTP_204_NO_CONTENT)
+
 
 # UPDATE AN EXISTING ITEM'S QUANTITY
 @app.route("/shopcarts/<int:shopcart_id>/items/<string:product_name>", methods=["PUT"])

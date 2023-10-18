@@ -315,7 +315,7 @@ class TestYourResourceServer(TestCase):
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_delete_item_with_existing_item(self):
-        """It should Delete an item from a customers shopcart"""        
+        """It should Delete an item from a customers shopcart"""
         shop_cart = self._create_shopcarts(1)[0]
         cart_item = CartItemFactory()
         cart_item_data = {
@@ -339,7 +339,7 @@ class TestYourResourceServer(TestCase):
             content_type="application/json",
         )
         self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
-    
+
     def test_delete_item_without_existing_item(self):
         """It should return HTTP_404_NOT_FOUND"""
         # send delete request
@@ -475,3 +475,41 @@ class TestYourResourceServer(TestCase):
         data = resp.get_json()  # Assuming your response is in JSON format
         self.assertEqual(data["error"], "Bad Request")
         self.assertIn("Quantity must be a positive integer", data["message"])
+
+
+    def test_update_shopcart(self):
+        """It should update a shopcart and assert that it has changed"""
+        shopcarts = Shopcart.all()
+        self.assertEqual(shopcarts, [])
+
+        shopcart = ShopcartFactory()
+        # Populate Shopcart with 3 CartItems
+        [CartItemFactory(shopcart=shopcart) for _ in range(3)]
+        shopcart.create()
+
+        shopcart = Shopcart.find(shopcart.id)
+        self.assertEqual(len(shopcart.items), 3)
+
+        new_items = [CartItemFactory().serialize() for _ in range(2)]
+
+        # Update the shopcart
+        resp = self.client.put(
+            f"{BASE_URL}/{shopcart.id}",
+            json={
+                "customer_id": shopcart.customer_id,
+                "items": new_items,
+            },
+            content_type="application/json",
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+        data = resp.get_json()
+
+        # NOTE: The primary keys are auto generated so don't compare them
+        self.assertEqual(len(data["items"]), len(new_items))
+        req_items = sorted(data["items"], key=lambda k: k["product_name"])
+        new_items = sorted(new_items, key=lambda k: k["product_name"])
+        for i in range(len(data["items"])):
+            self.assertEqual(req_items[i]["product_name"], new_items[i]["product_name"])
+            self.assertEqual(req_items[i]["quantity"], new_items[i]["quantity"])
+            self.assertEqual(req_items[i]["price"], new_items[i]["price"])
