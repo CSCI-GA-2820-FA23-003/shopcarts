@@ -34,7 +34,7 @@ def index():
 
 
 ######################################################################
-#  SHOPCART   A P I   E N D P O I N T S
+#  S H O P C A R T   A P I   E N D P O I N T S
 ######################################################################
 @app.route("/shopcarts/<int:shopcart_id>", methods=["GET"])
 def get_shopcart_by_id(shopcart_id):
@@ -66,20 +66,6 @@ def create_shopcart():
 
     shopcart = Shopcart()
     shopcart.deserialize(request.get_json())
-
-    # check if no customer_id passing in the body
-    if not request.get_json()["customer_id"]:
-        return make_response(
-            "Missing customer_id in request body.", status.HTTP_400_BAD_REQUEST
-        )
-
-    # check if the customer already have a shopcart
-    shopcarts = Shopcart.find_shopcart_by_customer_id(request.get_json()["customer_id"])
-    results = [shopcart.serialize() for shopcart in shopcarts]
-    if len(results) > 0:
-        return make_response(
-            "Customer already have a shopcart", status.HTTP_400_BAD_REQUEST
-        )
 
     shopcart.create()
 
@@ -238,7 +224,9 @@ def delete_item(shopcart_id, item_id):
 
     This endpoint will delete an item based the id specified in the path
     """
-    app.logger.info("Request to delete item %s for shopcart_id: %s", item_id, shopcart_id)
+    app.logger.info(
+        "Request to delete item %s for shopcart_id: %s", item_id, shopcart_id
+    )
 
     # See if the item exists and delete it if it does
     item = CartItem.find(item_id)

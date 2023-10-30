@@ -58,8 +58,6 @@ class PersistentBase:
         Updates a Shopcart to the database
         """
         logger.info("Updating %s", self.id)
-        if not self.id:
-            raise DataValidationError("Update called with empty ID field")
         db.session.commit()
 
     def delete(self):
@@ -183,7 +181,7 @@ class Shopcart(db.Model, PersistentBase):
     items = db.relationship("CartItem", backref="shopcart", passive_deletes=True)
 
     def __repr__(self):
-        return f"<ShopCart id=[{self.id}]>"
+        return f"<ShopCart id=[{self.id}] customer_id=[{self.customer_id}]>"
 
     def serialize(self):
         """Converts an ShopCart into a dictionary"""
@@ -205,8 +203,8 @@ class Shopcart(db.Model, PersistentBase):
         """
         try:
             # handle inner list of items
-            self.customer_id = data.get("customer_id")
-            item_list = data.get("items")
+            self.customer_id = data["customer_id"]
+            item_list = data.get("items", [])
             for json_item in item_list:
                 item = CartItem()
                 item.deserialize(json_item)
@@ -215,18 +213,12 @@ class Shopcart(db.Model, PersistentBase):
             raise DataValidationError(
                 "Invalid Shopcart: missing " + error.args[0]
             ) from error
-        except TypeError as error:
+        except (TypeError, AttributeError) as error:
             raise DataValidationError(
                 "Invalid Shopcart: body of request contained "
                 "bad or no data - " + error.args[0]
             ) from error
-        except AttributeError as error:
-            raise DataValidationError(
-                "Invalid Shopcart: body of request contained "
-                "bad or no attribute - " + error.args[0]
-            ) from error
         return self
-
 
     def clear_items(self) -> None:
         """
