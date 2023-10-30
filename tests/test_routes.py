@@ -148,9 +148,9 @@ class TestYourResourceServer(TestCase):
         self.assertEqual(data[0]["customer_id"], shopcarts[1].customer_id)
 
     # Note: need further check
-    def test_get_shopcarts_by_customer_id_404NotFound(self):
+    def test_get_shopcarts_by_customer_id_404(self):
         """It should return 404 not found by given a non-existed customer id"""
-        shopcarts = self._create_shopcarts(3)
+        self._create_shopcarts(3)
         resp = self.client.get(BASE_URL, query_string=f"customer_id={4}")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
@@ -476,7 +476,6 @@ class TestYourResourceServer(TestCase):
         self.assertEqual(data["error"], "Bad Request")
         self.assertIn("Quantity must be a positive integer", data["message"])
 
-
     def test_update_shopcart(self):
         """It should update a shopcart and assert that it has changed"""
         shopcarts = Shopcart.all()
@@ -484,7 +483,8 @@ class TestYourResourceServer(TestCase):
 
         shopcart = ShopcartFactory()
         # Populate Shopcart with 3 CartItems
-        [CartItemFactory(shopcart=shopcart) for _ in range(3)]
+        for _ in range(3):
+            CartItemFactory(shopcart=shopcart)
         shopcart.create()
 
         shopcart = Shopcart.find(shopcart.id)

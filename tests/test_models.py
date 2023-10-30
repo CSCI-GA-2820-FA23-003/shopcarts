@@ -310,7 +310,8 @@ class TestShopcart(unittest.TestCase):
         self.assertEqual(shopcarts, [])
 
         shopcart = ShopcartFactory()
-        [CartItemFactory(shopcart=shopcart) for _ in range(3)]
+        for _ in range(3):
+            CartItemFactory(shopcart=shopcart)
         shopcart.create()
         # Assert that it was assigned an id and shows up in the database
         self.assertIsNotNone(shopcart.id)

@@ -1,7 +1,7 @@
 """
 My Service
 
-ShopCart APIs 
+ShopCart APIs
 - Get all shop carts in the database
 
 """
