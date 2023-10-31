@@ -52,9 +52,13 @@ class TestShopcart(unittest.TestCase):
     def test_create_a_shopcart(self):
         """It should Create a Shopcart and assert that it exists"""
         fake_shopcart = ShopcartFactory()
-        shopcart = Shopcart(items=fake_shopcart.items)
+        shopcart = Shopcart(
+            id=fake_shopcart.id,
+            customer_id=fake_shopcart.customer_id,
+            items=fake_shopcart.items,
+        )
         self.assertIsNotNone(shopcart)
-        self.assertEqual(shopcart.id, None)
+        self.assertEqual(shopcart.id, fake_shopcart.id)
 
     def test_add_a_shopcart(self):
         """It should Create a Shopcart and add it to the database"""
@@ -63,7 +67,7 @@ class TestShopcart(unittest.TestCase):
 
         shopcart = ShopcartFactory()
         shopcart.create()
-        # # Assert that it was assigned an ID and shows up in the database
+        # Assert that it was assigned an ID and shows up in the database
         self.assertIsNotNone(shopcart.id)
         shopcarts = Shopcart.all()
         self.assertEqual(len(shopcarts), 1)
@@ -88,6 +92,23 @@ class TestShopcart(unittest.TestCase):
         found_shopcart = Shopcart.find(shopcart.id)
         self.assertEqual(found_shopcart.id, shopcart.id)
         self.assertEqual(found_shopcart.items, [])
+
+    def test_update_shopcart(self):
+        """It should update a Shopcart"""
+        shopcart = ShopcartFactory()
+        shopcart.create()
+
+        # Read it back
+        found_shopcart = Shopcart.find(shopcart.id)
+        self.assertEqual(found_shopcart.id, shopcart.id)
+
+        # Update field
+        shopcart.customer_id = 123
+        shopcart.update()
+
+        # Read back updated shopcart
+        found_shopcart = Shopcart.find(shopcart.id)
+        self.assertEqual(found_shopcart.customer_id, 123)
 
     def test_delete_a_shopcart(self):
         """It should Delete a shopcart from the database"""
@@ -157,6 +178,15 @@ class TestShopcart(unittest.TestCase):
         self.assertEqual(
             new_shopcart.items[0].product_name, shopcart.items[0].product_name
         )
+
+    def test_deserialize_a_shopcart_no_items(self):
+        """It should Deserialize a Shopcart"""
+        shopcart = ShopcartFactory()
+        shopcart.create()
+        serialized_shopcart = shopcart.serialize()
+        new_shopcart = Shopcart()
+        new_shopcart.deserialize(serialized_shopcart)
+        self.assertEqual(len(new_shopcart.items), len(shopcart.items))
 
     def test_deserialize_cart_item(self):
         """It should Deserialize a Cart Item"""
@@ -280,7 +310,8 @@ class TestShopcart(unittest.TestCase):
         self.assertEqual(shopcarts, [])
 
         shopcart = ShopcartFactory()
-        [CartItemFactory(shopcart=shopcart) for _ in range(3)]
+        for _ in range(3):
+            CartItemFactory(shopcart=shopcart)
         shopcart.create()
         # Assert that it was assigned an id and shows up in the database
         self.assertIsNotNone(shopcart.id)
