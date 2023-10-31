@@ -86,7 +86,7 @@ def create_shopcart():
     # Create a message to return
     message = shopcart.serialize()
     location_url = url_for(
-        "create_shopcart", customer_id=shopcart.customer_id, _external=True
+        "get_shopcart_by_id", shopcart_id=shopcart.id, _external=True
     )
     return make_response(
         jsonify(message), status.HTTP_201_CREATED, {"Location": location_url}
@@ -114,10 +114,7 @@ def update_shopcart(shopcart_id):
     shopcart.update()
 
     message = shopcart.serialize()
-    location_url = url_for("update_shopcart", shopcart_id=shopcart.id, _external=True)
-    return make_response(
-        jsonify(message), status.HTTP_200_OK, {"Location": location_url}
-    )
+    return make_response(jsonify(message), status.HTTP_200_OK)
 
 
 @app.route("/shopcarts")
@@ -238,7 +235,9 @@ def delete_item(shopcart_id, item_id):
 
     This endpoint will delete an item based the id specified in the path
     """
-    app.logger.info("Request to delete item %s for shopcart_id: %s", item_id, shopcart_id)
+    app.logger.info(
+        "Request to delete item %s for shopcart_id: %s", item_id, shopcart_id
+    )
 
     # See if the item exists and delete it if it does
     item = CartItem.find(item_id)
