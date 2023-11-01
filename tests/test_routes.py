@@ -103,15 +103,15 @@ class TestYourResourceServer(TestCase):
         self.assertEqual(resp.status_code, status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
 
     def test_create_shopcart_with_empty_body(self):
-        """It should get a 400 bad request response"""
+        """It should get a 400 bad request response for an empty body"""
         resp = self.client.post(BASE_URL, json={})
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_create_shopcart_having_existed_shopcart(self):
-        """It should get a 400 bad request response"""
+        """It should get a 409 conflict error for duplicate customer_id"""
         shopcart = self._create_shopcarts(1)
         resp = self.client.post(BASE_URL, json={"customer_id": shopcart[0].customer_id})
-        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(resp.status_code, status.HTTP_409_CONFLICT)
 
     def test_get_shopcarts_list(self):
         """It should get a list of shopcarts created"""
@@ -349,7 +349,7 @@ class TestYourResourceServer(TestCase):
             f"{BASE_URL}/{shop_cart.id}/items/{item_id}",
             content_type="application/json",
         )
-        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
 
     def test_update_item_quantity_shopcart_not_found(self):
         """It should return a 404 NOT FOUND response when the shopcart is not found"""

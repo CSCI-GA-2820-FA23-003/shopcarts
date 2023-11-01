@@ -230,11 +230,7 @@ def delete_item(shopcart_id, item_id):
     # note: if shopcart not exist, do nothing
     if item:
         item.delete()
-    else:
-        abort(
-            status.HTTP_404_NOT_FOUND,
-            f"Item with id '{item_id}' could not be found.",
-        )
+
     return make_response("", status.HTTP_204_NO_CONTENT)
 
 

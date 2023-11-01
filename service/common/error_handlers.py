@@ -18,7 +18,7 @@
 Module: error_handlers
 """
 from flask import jsonify
-from service.models import DataValidationError
+from service.models import DataValidationError, DataConflictError
 from service import app
 from . import status
 
@@ -30,6 +30,12 @@ from . import status
 def request_validation_error(error):
     """Handles Value Errors from bad data"""
     return bad_request(error)
+
+
+@app.errorhandler(DataConflictError)
+def data_conflict_error(error):
+    """Handles conflict errors from create requests"""
+    return resource_conflict(error)
 
 
 @app.errorhandler(status.HTTP_400_BAD_REQUEST)

@@ -6,7 +6,13 @@ import os
 import logging
 import unittest
 from service import app
-from service.models import Shopcart, CartItem, DataValidationError, db
+from service.models import (
+    Shopcart,
+    CartItem,
+    DataValidationError,
+    DataConflictError,
+    db,
+)
 from tests.factories import ShopcartFactory, CartItemFactory
 
 DATABASE_URI = os.getenv(
@@ -81,7 +87,7 @@ class TestShopcart(unittest.TestCase):
         shopcart.create()
         shopcart2 = ShopcartFactory()
         shopcart2.customer_id = shopcart.customer_id
-        self.assertRaises(DataValidationError, shopcart2.create)
+        self.assertRaises(DataConflictError, shopcart2.create)
 
     def test_read_shopcart(self):
         """It should Read a Shopcart"""
