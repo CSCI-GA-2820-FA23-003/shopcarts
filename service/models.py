@@ -7,6 +7,7 @@ import logging
 from abc import abstractmethod
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.exc import IntegrityError
+from psycopg2.errors import UniqueViolation
 
 logger = logging.getLogger("flask.app")
 
@@ -22,6 +23,10 @@ def init_db(app):
 
 class DataValidationError(Exception):
     """Used for an data validation errors when deserializing"""
+
+
+class DataConflictError(Exception):
+    """Used for an data conflict errors when creating"""
 
 
 ######################################################################
@@ -51,6 +56,14 @@ class PersistentBase:
             db.session.add(self)
             db.session.commit()
         except IntegrityError as error:
+            if isinstance(error.orig, UniqueViolation):
+                # Capture duplicate data error
+                raise DataConflictError(
+                    "Duplicate Shopcart: Shopcart for customer_id "
+                    + str(self.customer_id)
+                    + " already exists"
+                ) from error
+
             raise DataValidationError("Invalid Shopcart: " + error.args[0]) from error
 
     def update(self):
