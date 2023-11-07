@@ -294,26 +294,31 @@ def update_items(shopcart_id, product_name):
     request_data = request.get_json()
     new_quantity = request_data.get("quantity")
 
-    if new_quantity is not None:
-        # Check if the new quantity is a positive integer
-        if not isinstance(new_quantity, int) or new_quantity <= 0:
-            abort(
-                status.HTTP_400_BAD_REQUEST,
-                "Quantity must be a positive integer.",
-            )
-        # Update the quantity
-        cart_item = cart_items[0]
-        cart_item.quantity = new_quantity
-        cart_item.update()
-
-        return make_response(
-            jsonify(
-                {
-                    "log": f"Quantity of '{product_name}' in shopcart {shopcart_id} updated to {new_quantity}"
-                }
-            ),
-            status.HTTP_200_OK,
+    if new_quantity is None:
+        abort(
+            status.HTTP_400_BAD_REQUEST,
+            "Quantity must be a positive integer.",
         )
+
+    if not isinstance(new_quantity, int) or new_quantity <= 0:
+        abort(
+            status.HTTP_400_BAD_REQUEST,
+            "Quantity must be a positive integer.",
+        )
+
+    # Update the quantity
+    cart_item = cart_items[0]
+    cart_item.quantity = new_quantity
+    cart_item.update()
+
+    return make_response(
+        jsonify(
+            {
+                "log": f"Quantity of '{product_name}' in shopcart {shopcart_id} updated to {new_quantity}"
+            }
+        ),
+        status.HTTP_200_OK,
+    )
 
 
 ######################################################################

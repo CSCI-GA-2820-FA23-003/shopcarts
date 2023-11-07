@@ -59,9 +59,7 @@ class PersistentBase:
             if isinstance(error.orig, UniqueViolation):
                 # Capture duplicate data error
                 raise DataConflictError(
-                    "Duplicate Shopcart: Shopcart for customer_id "
-                    + str(self.customer_id)
-                    + " already exists"
+                    "Duplicate Shopcart: Shopcart for customer already exists"
                 ) from error
 
             raise DataValidationError("Invalid Shopcart: " + error.args[0]) from error
@@ -93,13 +91,13 @@ class PersistentBase:
     def all(cls):
         """Returns all of the records in the database"""
         logger.info("Processing all records")
-        return cls.query.all()
+        return cls.query.all()  # pylint: disable=no-member
 
     @classmethod
     def find(cls, by_id):
         """Finds a record by it's ID"""
         logger.info("Processing lookup for id %s ...", by_id)
-        return cls.query.get(by_id)
+        return cls.query.get(by_id)  # pylint: disable=no-member
 
 
 ######################################################################
