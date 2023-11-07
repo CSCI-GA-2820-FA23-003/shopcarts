@@ -513,3 +513,39 @@ class TestYourResourceServer(TestCase):
             self.assertEqual(req_items[i]["product_name"], new_items[i]["product_name"])
             self.assertEqual(req_items[i]["quantity"], new_items[i]["quantity"])
             self.assertEqual(req_items[i]["price"], new_items[i]["price"])
+
+    def test_clear_shopcart_items(self):
+        """It should clear all items in Customers shopcart"""
+        shop_cart = self._create_shopcarts(1)[0]
+        cart_item = CartItemFactory()
+        cart_item_data = {
+            "shopcart_id": cart_item.shopcart_id,
+            "product_name": cart_item.product_name,
+            "price": cart_item.price,
+        }
+
+        # Add an item to the shopcart
+        resp = self.client.post(
+            f"{BASE_URL}/{shop_cart.id}/items",
+            json=cart_item_data,
+            content_type="application/json",
+        )
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+
+        # Send request to clear shopcart items
+        resp = self.client.put(
+            f"{BASE_URL}/{shop_cart.id}/clear",
+            content_type="application/json",
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.get_json()
+        self.assertEqual(data["items"], [])
+
+        # Add an item to the shopcart
+        resp = self.client.get(
+            f"{BASE_URL}/{shop_cart.id}/items",
+            content_type="application/json",
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.get_json()
+        self.assertEqual(data, [])
