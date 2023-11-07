@@ -222,7 +222,7 @@ class TestYourResourceServer(TestCase):
         self.assertEqual(data["price"], cart_item.price)
 
     def test_add_cart_item_having_existed_item(self):
-        """It should get a 409 conflict response"""
+        """It should get a 400 bad request response"""
         shop_cart = self._create_shopcarts(1)[0]
         cart_item = CartItemFactory()
         resp = self.client.post(
@@ -244,7 +244,7 @@ class TestYourResourceServer(TestCase):
             json=cart_item.serialize(),
             content_type="application/json",
         )
-        self.assertEqual(resp.status_code, status.HTTP_409_CONFLICT)
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_add_cart_item_without_existed_shopcart(self):
         """It should get a 404 not found response"""
