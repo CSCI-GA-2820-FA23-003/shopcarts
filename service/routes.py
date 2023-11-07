@@ -234,6 +234,29 @@ def delete_item(shopcart_id, item_id):
     return make_response("", status.HTTP_204_NO_CONTENT)
 
 
+@app.route("/shopcarts/<int:shopcart_id>/clear", methods=["PUT"])
+def clear_items_in_cart(shopcart_id):
+    """
+    Clear items in a customer shopcart
+
+    This endpoint will delete all items in the shopcart specified in the path
+    """
+    app.logger.info("Request to clear items for shopcart_id: %s", shopcart_id)
+
+    # Check if the shopcart exists and abort if it doesn't (Same as in create_items)
+    shopcart = Shopcart.find(shopcart_id)
+    if not shopcart:
+        abort(
+            status.HTTP_404_NOT_FOUND,
+            f"Shopcart with id '{shopcart_id}' could not be found.",
+        )
+
+    for item in shopcart.items:
+        item.delete()
+
+    return make_response(jsonify(shopcart.serialize()), status.HTTP_200_OK)
+
+
 # UPDATE AN EXISTING ITEM'S QUANTITY
 @app.route("/shopcarts/<int:shopcart_id>/items/<string:product_name>", methods=["PUT"])
 def update_items(shopcart_id, product_name):
