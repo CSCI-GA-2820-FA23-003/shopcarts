@@ -58,11 +58,10 @@ class TestShopcart(unittest.TestCase):
     def test_create_a_shopcart(self):
         """It should Create a Shopcart and assert that it exists"""
         fake_shopcart = ShopcartFactory()
-        shopcart = Shopcart(
-            id=fake_shopcart.id,
-            customer_id=fake_shopcart.customer_id,
-            items=fake_shopcart.items,
-        )
+        shopcart = Shopcart()
+        shopcart.id = fake_shopcart.id
+        shopcart.customer_id = fake_shopcart.customer_id
+        shopcart.items = fake_shopcart.items
         self.assertIsNotNone(shopcart)
         self.assertEqual(shopcart.id, fake_shopcart.id)
 
@@ -266,7 +265,6 @@ class TestShopcart(unittest.TestCase):
         # Fetch it back
         shopcart = Shopcart.find(shopcart.id)
         old_cart_item = shopcart.items[0]
-        print("%r", old_cart_item)
         self.assertEqual(old_cart_item.quantity, address.quantity)
         # Change the product name
         old_cart_item.quantity = 36
@@ -316,7 +314,7 @@ class TestShopcart(unittest.TestCase):
         self.assertEqual(shopcarts, [])
 
         shopcart = ShopcartFactory()
-        for _ in range(3):
+        for _ in range(2):
             CartItemFactory(shopcart=shopcart)
         shopcart.create()
         # Assert that it was assigned an id and shows up in the database

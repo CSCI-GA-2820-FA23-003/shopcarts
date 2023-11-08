@@ -23,7 +23,7 @@ BASE_URL = "/shopcarts"
 ######################################################################
 #  T E S T   C A S E S
 ######################################################################
-class TestYourResourceServer(TestCase):
+class TestYourResourceServer(TestCase):  # pylint: disable=too-many-public-methods
     """REST API Server Tests"""
 
     @classmethod
