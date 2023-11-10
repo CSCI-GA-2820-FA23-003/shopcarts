@@ -126,14 +126,9 @@ class CartItem(db.Model, PersistentBase):
         """
         Creates a CartItem in the database
         """
-        try:
-            logger.info("Creating %s", self.product_id)
-            db.session.add(self)
-            db.session.commit()
-        except KeyError as error:
-            raise DataValidationError(
-                "Invalid CartItem: missing " + error.args[0]
-            ) from error
+        logger.info("Creating %s", self.product_id)
+        db.session.add(self)
+        db.session.commit()
 
     def update(self):
         """

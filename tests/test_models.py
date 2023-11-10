@@ -111,6 +111,11 @@ class TestShopcart(unittest.TestCase):
         shopcart2.customer_id = shopcart.customer_id
         self.assertRaises(DataConflictError, shopcart2.create)
 
+    def test_add_item_with_key_error(self):
+        """It should raise an error if key is missing while creating item"""
+        cart_item = CartItem()
+        self.assertRaises(DataValidationError, cart_item.create)
+
     def test_read_shopcart(self):
         """It should Read a Shopcart"""
         shopcart = ShopcartFactory()
