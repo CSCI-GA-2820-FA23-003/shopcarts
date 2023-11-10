@@ -94,7 +94,7 @@ delete_shopcarts   DELETE   /shopcarts/<int:shopcart_id>
 list_cart_items    GET      /shopcarts/<int:shopcart_id>/items
 create_cart_items  POST     /shopcarts/<int:shopcart_id>/items
 get_cart_items     GET      /???/<???>/???/<???>
-update_cart_items  PUT      /shopcarts/<int:shopcart_id>/items/<string:product_name>
+update_cart_items  PUT      /shopcarts/<int:shopcart_id>/items/<int:product_id>
 clear_items_in_cart  PUT   /shopcarts/<int:shopcart_id>/items/clear
 ```
 
