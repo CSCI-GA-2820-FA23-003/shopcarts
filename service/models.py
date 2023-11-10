@@ -124,7 +124,7 @@ class CartItem(db.Model, PersistentBase):
 
     def create(self):
         """
-        Creates a Shopcart to the database
+        Creates a CartItem in the database
         """
         try:
             logger.info("Creating %s", self.product_id)
@@ -137,13 +137,13 @@ class CartItem(db.Model, PersistentBase):
 
     def update(self):
         """
-        Updates a Shopcart to the database
+        Updates a CartItem in the database
         """
         logger.info("Updating %s", self.product_id)
         db.session.commit()
 
     def delete(self):
-        """Removes a Shopcart from the data store"""
+        """Removes a CartItem from the database"""
         logger.info("Deleting %s", self.product_id)
         db.session.delete(self)
         db.session.commit()
