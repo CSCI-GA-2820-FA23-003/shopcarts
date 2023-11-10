@@ -7,7 +7,7 @@ import logging
 from abc import abstractmethod
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.exc import IntegrityError
-from psycopg2.errors import UniqueViolation, NotNullViolation
+from psycopg2.errors import UniqueViolation
 
 logger = logging.getLogger("flask.app")
 
