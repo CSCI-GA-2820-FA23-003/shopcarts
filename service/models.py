@@ -7,7 +7,7 @@ import logging
 from abc import abstractmethod
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.exc import IntegrityError
-from psycopg2.errors import UniqueViolation
+from psycopg2.errors import UniqueViolation, NotNullViolation
 
 logger = logging.getLogger("flask.app")
 
@@ -126,9 +126,12 @@ class CartItem(db.Model, PersistentBase):
         """
         Creates a CartItem in the database
         """
-        logger.info("Creating %s", self.product_id)
-        db.session.add(self)
-        db.session.commit()
+        try:
+            logger.info("Creating %s", self.product_id)
+            db.session.add(self)
+            db.session.commit()
+        except IntegrityError as error:
+            raise DataValidationError("Invalid CartItem: " + error.args[0]) from error
 
     def update(self):
         """

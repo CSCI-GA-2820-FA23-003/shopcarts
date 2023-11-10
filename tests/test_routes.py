@@ -314,6 +314,15 @@ class TestYourResourceServer(TestCase):  # pylint: disable=too-many-public-metho
         resp = self.client.get(f"{BASE_URL}/{shop_cart.id + 1}/items")
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
+    def test_add_cart_item_without_product_id(self):
+        """It should get a 400 bad request if cart item is added without product id"""
+        # add two items to the shopcart
+        shop_cart = self._create_shopcarts(1)[0]
+        # Create an item from cart item factory
+        cart_item = {"shopcart_id": 1, "quantity": 1, "price": 1.0}
+        resp = self.client.post(f"{BASE_URL}/{shop_cart.id}/items", json=cart_item)
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+
     def test_delete_item_with_existing_item(self):
         """It should Delete an item from a customers shopcart"""
         shop_cart = self._create_shopcarts(1)[0]
