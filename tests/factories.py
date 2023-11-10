@@ -16,7 +16,7 @@
 Test Factory to make fake objects for testing
 """
 import factory
-from factory.fuzzy import FuzzyChoice, FuzzyFloat, FuzzyInteger
+from factory.fuzzy import FuzzyFloat, FuzzyInteger
 from service.models import Shopcart, CartItem
 
 
