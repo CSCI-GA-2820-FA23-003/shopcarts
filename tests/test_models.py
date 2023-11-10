@@ -61,6 +61,23 @@ class TestShopcart(unittest.TestCase):
         obj = PersistentBase()
         self.assertIsNone(obj.id, "id should initially be none")
 
+    def test_models_repr_str(self):
+        """Shopcart and CartItem repr and str should be correct"""
+        shopcart = Shopcart()
+        cart_item = CartItem()
+        self.assertEqual(
+            shopcart.__repr__(),  # pylint: disable=unnecessary-dunder-call
+            f"<ShopCart id=[{shopcart.id}] customer_id=[{shopcart.customer_id}]>",
+        )
+        self.assertEqual(
+            cart_item.__repr__(),  # pylint: disable=unnecessary-dunder-call
+            f"<CartItem id=[{cart_item.product_id}] shopcart[{cart_item.shopcart_id}]>",
+        )
+        self.assertEqual(
+            cart_item.__str__(),  # pylint: disable=unnecessary-dunder-call
+            f"{cart_item.product_id}: Price={cart_item.price}, Quantity={cart_item.quantity}",
+        )
+
     def test_create_a_shopcart(self):
         """It should Create a Shopcart and assert that it exists"""
         fake_shopcart = ShopcartFactory()
