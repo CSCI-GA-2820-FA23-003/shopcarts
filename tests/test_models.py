@@ -7,6 +7,7 @@ import logging
 import unittest
 from service import app
 from service.models import (
+    PersistentBase,
     Shopcart,
     CartItem,
     DataValidationError,
@@ -54,6 +55,11 @@ class TestShopcart(unittest.TestCase):
     ######################################################################
     #  T E S T   C A S E S
     ######################################################################
+
+    def test_persistent_base_init(self):
+        """PersistentBase id should initially be none"""
+        obj = PersistentBase()
+        self.assertIsNone(obj.id, "id should initially be none")
 
     def test_create_a_shopcart(self):
         """It should Create a Shopcart and assert that it exists"""
@@ -160,9 +166,8 @@ class TestShopcart(unittest.TestCase):
         self.assertEqual(serialized_shopcart["id"], shopcart.id)
         self.assertEqual(len(serialized_shopcart["items"]), 1)
         items = serialized_shopcart["items"]
-        self.assertEqual(items[0]["id"], cart_item.id)
         self.assertEqual(items[0]["shopcart_id"], cart_item.shopcart_id)
-        self.assertEqual(items[0]["product_name"], cart_item.product_name)
+        self.assertEqual(items[0]["product_id"], cart_item.product_id)
         self.assertEqual(items[0]["quantity"], cart_item.quantity)
         self.assertEqual(items[0]["price"], cart_item.price)
 
@@ -180,9 +185,7 @@ class TestShopcart(unittest.TestCase):
         )
         self.assertEqual(new_shopcart.items[0].price, shopcart.items[0].price)
         self.assertEqual(new_shopcart.items[0].quantity, shopcart.items[0].quantity)
-        self.assertEqual(
-            new_shopcart.items[0].product_name, shopcart.items[0].product_name
-        )
+        self.assertEqual(new_shopcart.items[0].product_id, shopcart.items[0].product_id)
 
     def test_deserialize_a_shopcart_no_items(self):
         """It should Deserialize a Shopcart"""
@@ -201,7 +204,7 @@ class TestShopcart(unittest.TestCase):
         new_cart_item = CartItem()
         new_cart_item.deserialize(serialized_cart_item)
         self.assertEqual(new_cart_item.shopcart_id, cart_item.shopcart_id)
-        self.assertEqual(new_cart_item.product_name, cart_item.product_name)
+        self.assertEqual(new_cart_item.product_id, cart_item.product_id)
         self.assertEqual(new_cart_item.quantity, cart_item.quantity)
         self.assertEqual(new_cart_item.price, cart_item.price)
 
@@ -239,7 +242,7 @@ class TestShopcart(unittest.TestCase):
         self.assertEqual(len(shopcarts), 1)
 
         new_shopcart = Shopcart.find(shopcart.id)
-        self.assertEqual(new_shopcart.items[0].product_name, cart_item.product_name)
+        self.assertEqual(new_shopcart.items[0].product_id, cart_item.product_id)
 
         cart_item2 = CartItemFactory(shopcart=shopcart)
         shopcart.items.append(cart_item2)
@@ -247,7 +250,7 @@ class TestShopcart(unittest.TestCase):
 
         new_shopcart = Shopcart.find(shopcart.id)
         self.assertEqual(len(new_shopcart.items), 2)
-        self.assertEqual(new_shopcart.items[1].product_name, cart_item2.product_name)
+        self.assertEqual(new_shopcart.items[1].product_id, cart_item2.product_id)
 
     def test_update_account_address(self):
         """It should Update a Shopcarts cart item"""
@@ -276,7 +279,7 @@ class TestShopcart(unittest.TestCase):
         self.assertEqual(address.quantity, 36)
 
     def test_delete_shopcart_cart_item(self):
-        """It should Delete an accounts address"""
+        """It should Delete a Shopcarts CartItem"""
         shopcarts = Shopcart.all()
         self.assertEqual(shopcarts, [])
 
