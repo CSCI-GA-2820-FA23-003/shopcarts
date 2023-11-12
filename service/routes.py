@@ -178,23 +178,28 @@ def create_items(shopcart_id):
             "Field `product_id` missing from request. Could not add item to cart.",
         )
 
+    # Check if 'quantity' is in the data
+    if "quantity" not in data:
+        data["quantity"] = 1
+
     # check if the item already exits in the shopcart
     cart_items = CartItem.find_cart_item_by_shopcart_id_and_product_id(
         shopcart_id, data["product_id"]
     )
 
     results = [cart_item.serialize() for cart_item in cart_items]
+
+    # If item already exists in cart, increment its quantity
     if len(results) > 0:
-        return make_response(
-            "Cart item already exists in the shopcart", status.HTTP_400_BAD_REQUEST
-        )
+        cart_item = cart_items[0]
+        cart_item.quantity += data["quantity"]
+        cart_item.update()
+        message = cart_item.serialize()
+        return make_response(jsonify(message), status.HTTP_201_CREATED)
+
     # Create an cartItem from the json data
     cart_item = CartItem()
     data["shopcart_id"] = shopcart_id
-
-    # Check if 'quantity' is in the data
-    if "quantity" not in data:
-        data["quantity"] = 1
 
     cart_item.deserialize(data)
 

@@ -83,7 +83,7 @@ class TestYourResourceServer(TestCase):  # pylint: disable=too-many-public-metho
     #  S H O P C A R T   T E S T   C A S E S
     ######################################################################
     def test_create_shopcart(self):
-        """It should Create a empty shopcart"""
+        """It should create an empty shopcart"""
         customer_id = random.randint(1000, 9999)
         resp = self.client.post(
             BASE_URL, json={"customer_id": customer_id, "items": []}
@@ -97,24 +97,19 @@ class TestYourResourceServer(TestCase):  # pylint: disable=too-many-public-metho
         )
         self.assertEqual(new_shopcart["items"], [], "Items does not match")
 
-    def test_create_shopcart_with_wrong_body_format(self):
-        """It should get a 415 bad request response"""
-        resp = self.client.post(BASE_URL)
-        self.assertEqual(resp.status_code, status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
-
     def test_create_shopcart_with_empty_body(self):
-        """It should get a 400 bad request response for an empty body"""
+        """It should return 400_bad_request error for an empty body in the request"""
         resp = self.client.post(BASE_URL, json={})
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_create_shopcart_having_existed_shopcart(self):
-        """It should get a 409 conflict error for duplicate customer_id"""
+        """It should return a 409 conflict error for creating shopcarts with duplicate customer_id"""
         shopcart = self._create_shopcarts(1)
         resp = self.client.post(BASE_URL, json={"customer_id": shopcart[0].customer_id})
         self.assertEqual(resp.status_code, status.HTTP_409_CONFLICT)
 
     def test_get_shopcarts_list(self):
-        """It should get a list of shopcarts created"""
+        """It should return a list of shopcarts created"""
         self._create_shopcarts(5)
         resp = self.client.get(BASE_URL)
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
@@ -122,7 +117,7 @@ class TestYourResourceServer(TestCase):  # pylint: disable=too-many-public-metho
         self.assertEqual(len(data), 5)
 
     def test_get_shopcart_by_id(self):
-        """It should Get a Shopcart by shopcart_id"""
+        """It should return a Shopcart by shopcart_id"""
         # get the id of an shopcart
         shopcart = self._create_shopcarts(1)[0]
         resp = self.client.get(
@@ -133,12 +128,12 @@ class TestYourResourceServer(TestCase):  # pylint: disable=too-many-public-metho
         self.assertEqual(data["customer_id"], shopcart.customer_id)
 
     def test_get_shopcart_by_id_404(self):
-        """It should return a 404 error if shopcart with given id is not found"""
+        """It should return a 404 not found error if shopcart with given id is not found"""
         resp = self.client.get(f"{BASE_URL}/0")
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_get_shopcarts_by_customer_id(self):
-        """It should Get a shopcart by customer id"""
+        """It should return a shopcart by customer id"""
         shopcarts = self._create_shopcarts(3)
         resp = self.client.get(
             BASE_URL, query_string=f"customer_id={shopcarts[1].customer_id}"
@@ -155,13 +150,13 @@ class TestYourResourceServer(TestCase):  # pylint: disable=too-many-public-metho
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
     def test_delete_shopcart(self):
-        """It should delete a shopcart"""
+        """It should delete a shopcart by id"""
         shopcart = self._create_shopcarts(1)[0]
         resp = self.client.delete(f"{BASE_URL}/{shopcart.id}")
         self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
 
-    def test_unsupported_media_type(self):
-        """It should not Create when sending wrong media type"""
+    def test_create_shopcart_with_wrong_body_format(self):
+        """It should return a 415_unsupported_media_type error for a wrong request body format"""
         shopcart = ShopcartFactory()
         resp = self.client.post(
             BASE_URL, json=shopcart.serialize(), content_type="test/html"
@@ -195,7 +190,7 @@ class TestYourResourceServer(TestCase):  # pylint: disable=too-many-public-metho
         self.assertEqual(data["price"], cart_item.price)
 
     def test_add_cart_item_no_quantity(self):
-        """It should default to a quantity of 1 when no quantity is provided"""
+        """It should default to an item quantity of 1 when no quantity is provided"""
         shop_cart = self._create_shopcarts(1)[0]
         cart_item = CartItemFactory()
 
@@ -221,8 +216,8 @@ class TestYourResourceServer(TestCase):  # pylint: disable=too-many-public-metho
         self.assertEqual(data["quantity"], 1)
         self.assertEqual(data["price"], cart_item.price)
 
-    def test_add_cart_item_having_existed_item(self):
-        """It should get a 400 bad request response"""
+    def test_add_duplicate_cart_item(self):
+        """It should increment cart item quantity if duplicate item is added to cart"""
         shop_cart = self._create_shopcarts(1)[0]
         cart_item = CartItemFactory()
         resp = self.client.post(
@@ -232,7 +227,6 @@ class TestYourResourceServer(TestCase):  # pylint: disable=too-many-public-metho
         )
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
         data = resp.get_json()
-        logging.debug(data)
         self.assertEqual(data["shopcart_id"], shop_cart.id)
         self.assertEqual(data["product_id"], cart_item.product_id)
         self.assertEqual(data["quantity"], cart_item.quantity)
@@ -244,10 +238,13 @@ class TestYourResourceServer(TestCase):  # pylint: disable=too-many-public-metho
             json=cart_item.serialize(),
             content_type="application/json",
         )
-        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+        data = resp.get_json()
+        # Quantity should be updated.
+        self.assertEqual(data["quantity"], cart_item.quantity * 2)
 
     def test_add_cart_item_without_existed_shopcart(self):
-        """It should get a 404 not found response"""
+        """It should return a 404 not found error if adding item to a non-existent shopcart"""
         shop_cart = self._create_shopcarts(1)[0]
         cart_item = CartItemFactory()
         resp = self.client.post(
@@ -258,7 +255,7 @@ class TestYourResourceServer(TestCase):  # pylint: disable=too-many-public-metho
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_get_item_list(self):
-        """It should Get a list of items"""
+        """It should get a list of items in a shopcart"""
         # add two items to the shopcart
         shop_cart = self._create_shopcarts(1)[0]
 
@@ -288,7 +285,7 @@ class TestYourResourceServer(TestCase):  # pylint: disable=too-many-public-metho
         self.assertEqual(len(data), 2)
 
     def test_get_item_list_without_existed_shopcart(self):
-        """It should get a 404 not found response"""
+        """It should return a 404 not found error if getting items in a non-existent shopcart"""
         # add two items to the shopcart
         shop_cart = self._create_shopcarts(1)[0]
 
@@ -315,7 +312,7 @@ class TestYourResourceServer(TestCase):  # pylint: disable=too-many-public-metho
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_add_cart_item_without_product_id(self):
-        """It should get a 400 bad request if cart item is added without product id"""
+        """It should return a 400 bad request error if cart item is added without product id"""
         # add two items to the shopcart
         shop_cart = self._create_shopcarts(1)[0]
         # Create an item from cart item factory
@@ -324,7 +321,7 @@ class TestYourResourceServer(TestCase):  # pylint: disable=too-many-public-metho
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_delete_item_with_existing_item(self):
-        """It should Delete an item from a customers shopcart"""
+        """It should delete an item from a shopcart"""
         shop_cart = self._create_shopcarts(1)[0]
         cart_item = CartItemFactory()
         cart_item_data = {
@@ -350,7 +347,7 @@ class TestYourResourceServer(TestCase):  # pylint: disable=too-many-public-metho
         self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
 
     def test_delete_item_without_existing_item(self):
-        """It should return HTTP_404_NOT_FOUND"""
+        """It should return HTTP_404_NOT_FOUND error if deleting a non-existent item"""
         # send delete request
         shop_cart = self._create_shopcarts(1)[0]
         item_id = random.randint(1000, 9999)
@@ -361,7 +358,7 @@ class TestYourResourceServer(TestCase):  # pylint: disable=too-many-public-metho
         self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
 
     def test_update_item_quantity_shopcart_not_found(self):
-        """It should return a 404 NOT FOUND response when the shopcart is not found"""
+        """It should return a 404 NOT FOUND error if updating an item in a missing shopcart"""
         # Update the quantity of an item in a non-existent shopcart
         non_existent_shopcart_id = 9999999
         product_id = 9999999
@@ -379,7 +376,7 @@ class TestYourResourceServer(TestCase):  # pylint: disable=too-many-public-metho
         )
 
     def test_update_item_quantity_product_not_found(self):
-        """It should return a 404 NOT FOUND response when the product is not found in the shopcart"""
+        """It should return a 404 NOT FOUND error if the item is not found in the shopcart"""
         shop_cart = self._create_shopcarts(1)[0]
         non_existent_product_id = 9999999
         new_quantity = 8

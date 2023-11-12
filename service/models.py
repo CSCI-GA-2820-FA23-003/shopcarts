@@ -180,7 +180,7 @@ class CartItem(db.Model, PersistentBase):
 
     @classmethod
     def find_cart_item_by_shopcart_id_and_product_id(cls, shopcart_id, product_id):
-        """Returns shopcart with the given customer_id
+        """Returns cart_item in a given shopcart
 
         Args:
             shopcart_id (Integer): the id of the customer you want to match
