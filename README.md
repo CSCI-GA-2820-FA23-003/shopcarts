@@ -72,7 +72,7 @@ You should be able to reach the service at: http://localhost:8000. The port that
 | ----------- | --------------------- | --------------- |
 | id | Unique ID for the item. | uuid         |
 | shopcart_id | ID of the shopcart it belongs to | uuid       |
-| product_name | Name of the product | string       |
+| product_id | ID of the product | uuid       |
 | quantity | Quantity of the product in the cart | Number       |
 | price | Price of the product when it was added | Float       |
 
@@ -94,7 +94,7 @@ delete_shopcarts   DELETE   /shopcarts/<int:shopcart_id>
 list_cart_items    GET      /shopcarts/<int:shopcart_id>/items
 create_cart_items  POST     /shopcarts/<int:shopcart_id>/items
 get_cart_items     GET      /???/<???>/???/<???>
-update_cart_items  PUT      /shopcarts/<int:shopcart_id>/items/<string:product_name>
+update_cart_items  PUT      /shopcarts/<int:shopcart_id>/items/<int:product_id>
 clear_items_in_cart  PUT   /shopcarts/<int:shopcart_id>/items/clear
 ```
 

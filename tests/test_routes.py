@@ -178,7 +178,7 @@ class TestYourResourceServer(TestCase):  # pylint: disable=too-many-public-metho
     ######################################################################
 
     def test_add_cart_item(self):
-        """It should Add an cart item to a shopcart"""
+        """It should add a CartItem to a ShopCart"""
         shop_cart = self._create_shopcarts(1)[0]
         cart_item = CartItemFactory()
         resp = self.client.post(
@@ -190,7 +190,7 @@ class TestYourResourceServer(TestCase):  # pylint: disable=too-many-public-metho
         data = resp.get_json()
         logging.debug(data)
         self.assertEqual(data["shopcart_id"], shop_cart.id)
-        self.assertEqual(data["product_name"], cart_item.product_name)
+        self.assertEqual(data["product_id"], cart_item.product_id)
         self.assertEqual(data["quantity"], cart_item.quantity)
         self.assertEqual(data["price"], cart_item.price)
 
@@ -202,7 +202,7 @@ class TestYourResourceServer(TestCase):  # pylint: disable=too-many-public-metho
         # Remove the quantity from the cart_item
         cart_item_data = {
             "shopcart_id": cart_item.shopcart_id,
-            "product_name": cart_item.product_name,
+            "product_id": cart_item.product_id,
             "price": cart_item.price,
         }
 
@@ -215,7 +215,7 @@ class TestYourResourceServer(TestCase):  # pylint: disable=too-many-public-metho
         data = resp.get_json()
         logging.debug(data)
         self.assertEqual(data["shopcart_id"], shop_cart.id)
-        self.assertEqual(data["product_name"], cart_item.product_name)
+        self.assertEqual(data["product_id"], cart_item.product_id)
 
         # Assert that the quantity defaults to 1
         self.assertEqual(data["quantity"], 1)
@@ -234,7 +234,7 @@ class TestYourResourceServer(TestCase):  # pylint: disable=too-many-public-metho
         data = resp.get_json()
         logging.debug(data)
         self.assertEqual(data["shopcart_id"], shop_cart.id)
-        self.assertEqual(data["product_name"], cart_item.product_name)
+        self.assertEqual(data["product_id"], cart_item.product_id)
         self.assertEqual(data["quantity"], cart_item.quantity)
         self.assertEqual(data["price"], cart_item.price)
 
@@ -272,7 +272,7 @@ class TestYourResourceServer(TestCase):  # pylint: disable=too-many-public-metho
         # Create the second item by modifying the first one to ensure their difference
         cart_item2_data = {
             "shopcart_id": cart_item1.shopcart_id,
-            "product_name": cart_item1.product_name + "No.2",
+            "product_id": cart_item1.product_id + 1,
             "price": cart_item1.price,
         }
         resp = self.client.post(
@@ -302,7 +302,7 @@ class TestYourResourceServer(TestCase):  # pylint: disable=too-many-public-metho
         # Create the second item by modifying the first one to ensure their difference
         cart_item2_data = {
             "shopcart_id": cart_item1.shopcart_id,
-            "product_name": cart_item1.product_name + "No.2",
+            "product_id": cart_item1.product_id + 1,
             "price": cart_item1.price,
         }
         resp = self.client.post(
@@ -314,13 +314,22 @@ class TestYourResourceServer(TestCase):  # pylint: disable=too-many-public-metho
         resp = self.client.get(f"{BASE_URL}/{shop_cart.id + 1}/items")
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
+    def test_add_cart_item_without_product_id(self):
+        """It should get a 400 bad request if cart item is added without product id"""
+        # add two items to the shopcart
+        shop_cart = self._create_shopcarts(1)[0]
+        # Create an item from cart item factory
+        cart_item = {"shopcart_id": 1, "quantity": 1, "price": 1.0}
+        resp = self.client.post(f"{BASE_URL}/{shop_cart.id}/items", json=cart_item)
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+
     def test_delete_item_with_existing_item(self):
         """It should Delete an item from a customers shopcart"""
         shop_cart = self._create_shopcarts(1)[0]
         cart_item = CartItemFactory()
         cart_item_data = {
             "shopcart_id": cart_item.shopcart_id,
-            "product_name": cart_item.product_name,
+            "product_id": cart_item.product_id,
             "price": cart_item.price,
         }
 
@@ -335,7 +344,7 @@ class TestYourResourceServer(TestCase):  # pylint: disable=too-many-public-metho
 
         # send delete request
         resp = self.client.delete(
-            f"{BASE_URL}/{shop_cart.id}/items/{data['id']}",
+            f"{BASE_URL}/{shop_cart.id}/items/{data['product_id']}",
             content_type="application/json",
         )
         self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
@@ -355,10 +364,10 @@ class TestYourResourceServer(TestCase):  # pylint: disable=too-many-public-metho
         """It should return a 404 NOT FOUND response when the shopcart is not found"""
         # Update the quantity of an item in a non-existent shopcart
         non_existent_shopcart_id = 9999999
-        product_name = "NonExistentProduct"
+        product_id = 9999999
         update_data = {"quantity": 8}
         resp = self.client.put(
-            f"{BASE_URL}/{non_existent_shopcart_id}/items/{product_name}",
+            f"{BASE_URL}/{non_existent_shopcart_id}/items/{product_id}",
             json=update_data,
             content_type="application/json",
         )
@@ -372,12 +381,12 @@ class TestYourResourceServer(TestCase):  # pylint: disable=too-many-public-metho
     def test_update_item_quantity_product_not_found(self):
         """It should return a 404 NOT FOUND response when the product is not found in the shopcart"""
         shop_cart = self._create_shopcarts(1)[0]
-        non_existent_product_name = "NonExistentProduct"
+        non_existent_product_id = 9999999
         new_quantity = 8
         # Update the quantity of a non-existent product in the shopcart
         update_data = {"quantity": new_quantity}
         resp = self.client.put(
-            f"{BASE_URL}/{shop_cart.id}/items/{non_existent_product_name}",
+            f"{BASE_URL}/{shop_cart.id}/items/{non_existent_product_id}",
             json=update_data,
             content_type="application/json",
         )
@@ -386,7 +395,7 @@ class TestYourResourceServer(TestCase):  # pylint: disable=too-many-public-metho
         data = resp.get_json()  # Assuming your response is in JSON format
         self.assertEqual(data["error"], "Not Found")
         self.assertIn(
-            f"Product '{non_existent_product_name}' not found in shopcart {shop_cart.id}",
+            f"Product '{non_existent_product_id}' not found in shopcart {shop_cart.id}",
             data["message"],
         )
 
@@ -406,13 +415,13 @@ class TestYourResourceServer(TestCase):  # pylint: disable=too-many-public-metho
         # Define the new quantity for the cart item
         new_quantity = 10
         # Retrieve the cart item for testing
-        cart_item_for_testing = CartItem.find_cart_item_by_shopcart_id_and_product_name(
-            shop_cart.id, cart_item.product_name
+        cart_item_for_testing = CartItem.find_cart_item_by_shopcart_id_and_product_id(
+            shop_cart.id, cart_item.product_id
         )[0]
         # Update the cart item's quantity
         update_data = {"quantity": new_quantity}
         resp = self.client.put(
-            f"{BASE_URL}/{shop_cart.id}/items/{cart_item.product_name}",
+            f"{BASE_URL}/{shop_cart.id}/items/{cart_item.product_id}",
             json=update_data,
             content_type="application/json",
         )
@@ -423,7 +432,7 @@ class TestYourResourceServer(TestCase):  # pylint: disable=too-many-public-metho
         # Verify the response contains the updated quantity
         self.assertEqual(
             data["log"],
-            f"Quantity of '{cart_item.product_name}' in shopcart {shop_cart.id} updated to {new_quantity}",
+            f"Quantity of '{cart_item.product_id}' in shopcart {shop_cart.id} updated to {new_quantity}",
         )
         # Verify the cart item's quantity is updated
         self.assertEqual(cart_item_for_testing.quantity, new_quantity)
@@ -442,7 +451,7 @@ class TestYourResourceServer(TestCase):  # pylint: disable=too-many-public-metho
         negative_quantity = -88
         update_data = {"quantity": negative_quantity}
         resp = self.client.put(
-            f"{BASE_URL}/{shop_cart.id}/items/{cart_item.product_name}",
+            f"{BASE_URL}/{shop_cart.id}/items/{cart_item.product_id}",
             json=update_data,
             content_type="application/json",
         )
@@ -466,7 +475,7 @@ class TestYourResourceServer(TestCase):  # pylint: disable=too-many-public-metho
         decimal_quantity = 8.8
         update_data = {"quantity": decimal_quantity}
         resp = self.client.put(
-            f"{BASE_URL}/{shop_cart.id}/items/{cart_item.product_name}",
+            f"{BASE_URL}/{shop_cart.id}/items/{cart_item.product_id}",
             json=update_data,
             content_type="application/json",
         )
@@ -507,10 +516,10 @@ class TestYourResourceServer(TestCase):  # pylint: disable=too-many-public-metho
 
         # NOTE: The primary keys are auto generated so don't compare them
         self.assertEqual(len(data["items"]), len(new_items))
-        req_items = sorted(data["items"], key=lambda k: k["product_name"])
-        new_items = sorted(new_items, key=lambda k: k["product_name"])
+        req_items = sorted(data["items"], key=lambda k: k["product_id"])
+        new_items = sorted(new_items, key=lambda k: k["product_id"])
         for i in range(len(data["items"])):
-            self.assertEqual(req_items[i]["product_name"], new_items[i]["product_name"])
+            self.assertEqual(req_items[i]["product_id"], new_items[i]["product_id"])
             self.assertEqual(req_items[i]["quantity"], new_items[i]["quantity"])
             self.assertEqual(req_items[i]["price"], new_items[i]["price"])
 
@@ -520,7 +529,7 @@ class TestYourResourceServer(TestCase):  # pylint: disable=too-many-public-metho
         cart_item = CartItemFactory()
         cart_item_data = {
             "shopcart_id": cart_item.shopcart_id,
-            "product_name": cart_item.product_name,
+            "product_id": cart_item.product_id,
             "price": cart_item.price,
         }
 

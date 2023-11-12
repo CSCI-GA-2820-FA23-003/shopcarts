@@ -165,9 +165,17 @@ def create_items(shopcart_id):
             f"Shopcart with id '{shopcart_id}' could not be found.",
         )
 
+    data = request.get_json()
+
+    if "product_id" not in data:
+        abort(
+            status.HTTP_400_BAD_REQUEST,
+            "Field `product_id` missing from request. Could not add item to cart.",
+        )
+
     # check if the item already exits in the shopcart
-    cart_items = CartItem.find_cart_item_by_shopcart_id_and_product_name(
-        shopcart_id, request.get_json()["product_name"]
+    cart_items = CartItem.find_cart_item_by_shopcart_id_and_product_id(
+        shopcart_id, data["product_id"]
     )
 
     results = [cart_item.serialize() for cart_item in cart_items]
@@ -177,13 +185,13 @@ def create_items(shopcart_id):
         )
     # Create an cartItem from the json data
     cart_item = CartItem()
-    data = request.get_json()
+    data["shopcart_id"] = shopcart_id
 
     # Check if 'quantity' is in the data
     if "quantity" not in data:
         data["quantity"] = 1
 
-    cart_item.deserialize(request.get_json())
+    cart_item.deserialize(data)
 
     # Append the item to the shopcart
     shopcart.items.append(cart_item)
@@ -258,15 +266,15 @@ def clear_items_in_cart(shopcart_id):
 
 
 # UPDATE AN EXISTING ITEM'S QUANTITY
-@app.route("/shopcarts/<int:shopcart_id>/items/<string:product_name>", methods=["PUT"])
-def update_items(shopcart_id, product_name):
+@app.route("/shopcarts/<int:shopcart_id>/items/<int:product_id>", methods=["PUT"])
+def update_items(shopcart_id, product_id):
     """
     Update an item in the shopcart quantitatively
     """
     app.logger.info(
-        "Request to update item quantity with shopcart_id: %s, and product_name: %s",
+        "Request to update item quantity with shopcart_id: %s, and product_id: %s",
         shopcart_id,
-        product_name,
+        product_id,
     )
     check_content_type("application/json")
 
@@ -279,15 +287,15 @@ def update_items(shopcart_id, product_name):
         )
 
     # Locate the product in the shopcart
-    cart_items = CartItem.find_cart_item_by_shopcart_id_and_product_name(
-        shopcart_id, product_name
+    cart_items = CartItem.find_cart_item_by_shopcart_id_and_product_id(
+        shopcart_id, product_id
     )
 
     if not cart_items:
         # Return a 404 response if the product is not found in the shopcart
         abort(
             status.HTTP_404_NOT_FOUND,
-            f"Product '{product_name}' not found in shopcart {shopcart_id}",
+            f"Product '{product_id}' not found in shopcart {shopcart_id}",
         )
 
     # Get new quantity from the request JSON
@@ -314,7 +322,7 @@ def update_items(shopcart_id, product_name):
     return make_response(
         jsonify(
             {
-                "log": f"Quantity of '{product_name}' in shopcart {shopcart_id} updated to {new_quantity}"
+                "log": f"Quantity of '{product_id}' in shopcart {shopcart_id} updated to {new_quantity}"
             }
         ),
         status.HTTP_200_OK,

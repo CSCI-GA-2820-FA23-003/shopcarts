@@ -109,26 +109,48 @@ class CartItem(db.Model, PersistentBase):
     """
 
     # Table Schema
-    id = db.Column(db.Integer, primary_key=True)
     shopcart_id = db.Column(
         db.Integer, db.ForeignKey("shopcart.id", ondelete="CASCADE"), nullable=False
     )
-    product_name = db.Column(db.String(64), nullable=False)
+    product_id = db.Column(db.Integer, primary_key=True)
     quantity = db.Column(db.Integer, nullable=False)
-    price = db.Column(db.Float())
+    price = db.Column(db.Float(), nullable=False)
 
     def __repr__(self):
-        return f"<CartItem {self.product_name} id=[{self.id}] shopcart[{self.shopcart_id}]>"
+        return f"<CartItem id=[{self.product_id}] shopcart[{self.shopcart_id}]>"
 
     def __str__(self):
-        return f"{self.product_name}: Price={self.price}, Quantity={self.quantity}"
+        return f"{self.product_id}: Price={self.price}, Quantity={self.quantity}"
+
+    def create(self):
+        """
+        Creates a CartItem in the database
+        """
+        try:
+            logger.info("Creating %s", self.product_id)
+            db.session.add(self)
+            db.session.commit()
+        except IntegrityError as error:
+            raise DataValidationError("Invalid CartItem: " + error.args[0]) from error
+
+    def update(self):
+        """
+        Updates a CartItem in the database
+        """
+        logger.info("Updating %s", self.product_id)
+        db.session.commit()
+
+    def delete(self):
+        """Removes a CartItem from the database"""
+        logger.info("Deleting %s", self.product_id)
+        db.session.delete(self)
+        db.session.commit()
 
     def serialize(self) -> dict:
         """Converts a CartItem into a dictionary"""
         return {
-            "id": self.id,
             "shopcart_id": self.shopcart_id,
-            "product_name": self.product_name,
+            "product_id": self.product_id,
             "quantity": self.quantity,
             "price": self.price,
         }
@@ -142,7 +164,7 @@ class CartItem(db.Model, PersistentBase):
         """
         try:
             self.shopcart_id = data["shopcart_id"]
-            self.product_name = data["product_name"]
+            self.product_id = data["product_id"]
             self.price = data["price"]
             self.quantity = data["quantity"]
         except KeyError as error:
@@ -157,21 +179,21 @@ class CartItem(db.Model, PersistentBase):
         return self
 
     @classmethod
-    def find_cart_item_by_shopcart_id_and_product_name(cls, shopcart_id, product_name):
+    def find_cart_item_by_shopcart_id_and_product_id(cls, shopcart_id, product_id):
         """Returns shopcart with the given customer_id
 
         Args:
             shopcart_id (Integer): the id of the customer you want to match
-            product_name (String): the name of the product you want to match
+            product_id (Integer): the id of the product you want to match
         """
         logger.info(
-            "Processing shopcart_id and product_name query for %s and %s ...",
+            "Processing shopcart_id and product_id query for %s and %s ...",
             shopcart_id,
-            product_name,
+            product_id,
         )
         return (
             cls.query.filter(cls.shopcart_id == shopcart_id)
-            .filter(cls.product_name == product_name)
+            .filter(cls.product_id == product_id)
             .all()
         )
 
