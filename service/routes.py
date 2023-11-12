@@ -29,12 +29,7 @@ def index():
 
 
 ######################################################################
-#  R E S T   A P I   E N D P O I N T S
-######################################################################
-
-
-######################################################################
-#  S H O P C A R T   A P I   E N D P O I N T S
+#  GET SHOPCART BY ID
 ######################################################################
 @app.route("/shopcarts/<int:shopcart_id>", methods=["GET"])
 def get_shopcart_by_id(shopcart_id):
@@ -56,6 +51,9 @@ def get_shopcart_by_id(shopcart_id):
     return make_response(jsonify(shopcart.serialize()), status.HTTP_200_OK)
 
 
+######################################################################
+#  CREATE NEW SHOPCART
+######################################################################
 @app.route("/shopcarts", methods=["POST"])
 def create_shopcart():
     """
@@ -79,6 +77,9 @@ def create_shopcart():
     )
 
 
+######################################################################
+#  UPDATE EXISTING SHOPCART
+######################################################################
 @app.route("/shopcarts/<int:shopcart_id>", methods=["PUT"])
 def update_shopcart(shopcart_id):
     """
@@ -103,6 +104,9 @@ def update_shopcart(shopcart_id):
     return make_response(jsonify(message), status.HTTP_200_OK)
 
 
+######################################################################
+#  LIST ALL SHOPCARTS
+######################################################################
 @app.route("/shopcarts")
 def list_shopcarts():
     """
@@ -127,6 +131,9 @@ def list_shopcarts():
     return make_response(jsonify(results), status.HTTP_200_OK)
 
 
+######################################################################
+#  DELETE SHOPCART BY ID
+######################################################################
 @app.route("/shopcarts/<int:shopcart_id>", methods=["DELETE"])
 def delete_shopcart(shopcart_id):
     """Delete a shopcart given shopcart id"""
@@ -141,10 +148,8 @@ def delete_shopcart(shopcart_id):
 
 
 ######################################################################
-#  C A R T  I T E M   A P I   E N D P O I N T S
+#  CREATE ITEM IN A SHOPCART
 ######################################################################
-
-
 @app.route("/shopcarts/<int:shopcart_id>/items", methods=["POST"])
 def create_items(shopcart_id):
     """
@@ -203,6 +208,9 @@ def create_items(shopcart_id):
     return make_response(jsonify(message), status.HTTP_201_CREATED)
 
 
+######################################################################
+#  GET ALL ITEMS IN A SHOPCART
+######################################################################
 @app.route("/shopcarts/<int:shopcart_id>/items", methods=["GET"])
 def list_items(shopcart_id):
     """Returns all of the cart items for a Shopcart"""
@@ -222,6 +230,9 @@ def list_items(shopcart_id):
     return make_response(jsonify(results), status.HTTP_200_OK)
 
 
+######################################################################
+#  DELETE AN ITEM FROM A SHOPCART
+######################################################################
 @app.route("/shopcarts/<int:shopcart_id>/items/<int:item_id>", methods=["DELETE"])
 def delete_item(shopcart_id, item_id):
     """
@@ -242,6 +253,9 @@ def delete_item(shopcart_id, item_id):
     return make_response("", status.HTTP_204_NO_CONTENT)
 
 
+######################################################################
+#  CLEAR (REMOVE) ALL ITEMS IN A SHOPCART
+######################################################################
 @app.route("/shopcarts/<int:shopcart_id>/clear", methods=["PUT"])
 def clear_items_in_cart(shopcart_id):
     """
@@ -265,7 +279,9 @@ def clear_items_in_cart(shopcart_id):
     return make_response(jsonify(shopcart.serialize()), status.HTTP_200_OK)
 
 
-# UPDATE AN EXISTING ITEM'S QUANTITY
+######################################################################
+#  UPDATE AN ITEM IN A SHOPCART
+######################################################################
 @app.route("/shopcarts/<int:shopcart_id>/items/<int:product_id>", methods=["PUT"])
 def update_items(shopcart_id, product_id):
     """
