@@ -72,7 +72,7 @@ You should be able to reach the service at: http://localhost:8000. The port that
 | ----------- | --------------------- | --------------- |
 | id | Unique ID for the item. | uuid         |
 | shopcart_id | ID of the shopcart it belongs to | uuid       |
-| product_name | Name of the product | string       |
+| product_id | ID of the product | uuid       |
 | quantity | Quantity of the product in the cart | Number       |
 | price | Price of the product when it was added | Float       |
 
