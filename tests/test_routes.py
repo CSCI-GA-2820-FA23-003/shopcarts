@@ -400,6 +400,71 @@ class TestYourResourceServer(TestCase):  # pylint: disable=too-many-public-metho
         )
         self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
 
+    # Test delete multiple items
+    def test_delete_items_successfully(self):
+        """It should delete multiple items from a shopcart by product_id"""
+        shop_cart = self._create_shopcarts(1)[0]
+        cart_item1 = CartItemFactory()
+        cart_item2 = CartItemFactory()
+        cart_item1_data = {
+            "shopcart_id": cart_item1.shopcart_id,
+            "product_id": 2,
+            "price": cart_item1.price,
+        }
+        cart_item2_data = {
+            "shopcart_id": cart_item1.shopcart_id,
+            "product_id": 3,
+            "price": cart_item2.price,
+        }
+        resp1 = self.client.post(
+            f"{BASE_URL}/{shop_cart.id}/items",
+            json=cart_item1_data,
+            content_type="application/json",
+        )
+        self.assertEqual(resp1.status_code, status.HTTP_201_CREATED)
+        resp2 = self.client.post(
+            f"{BASE_URL}/{shop_cart.id}/items",
+            json=cart_item2_data,
+            content_type="application/json",
+        )
+        self.assertEqual(resp2.status_code, status.HTTP_201_CREATED)
+        data = [
+            resp1.get_json(),
+            resp2.get_json(),
+        ]
+        logging.debug(data)
+        resp = self.client.delete(
+            f"{BASE_URL}/{shop_cart.id}/items",
+            json={"product_ids": [2, 3]},
+            content_type="application/json",
+        )
+
+        # Check the status code
+        self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
+
+        # Verify that the items are deleted from the database
+        for item_data in data:
+            product_id = item_data.get("product_id")
+            deleted_product = CartItem.find_by_shopcart_id_and_product_id(
+                cart_item1.shopcart_id, product_id
+            )
+            self.assertIsNone(
+                deleted_product, f"Product {product_id} should be deleted"
+            )
+
+    def test_delete_items_without_existing_product_ids(self):
+        """
+        It should responds with a 204 status code if the requested product_ids don't exist.
+        """
+        shopcart_id = 1
+        request_data = {"product_ids": [9999999]}
+        response = self.client.delete(
+            f"/shopcarts/{shopcart_id}/items", json=request_data
+        )
+
+        # Check that the response status code is 204 (No Content)
+        self.assertEqual(response.status_code, 204)
+
     def test_update_item_quantity_shopcart_not_found(self):
         """It should return a 404 NOT FOUND error if updating an item in a missing shopcart"""
         # Update the quantity of an item in a non-existent shopcart
