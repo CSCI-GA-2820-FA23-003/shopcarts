@@ -56,7 +56,7 @@ class CartItemFactory(factory.Factory):
         model = CartItem
 
     product_id = factory.Sequence(lambda n: n)
-    shopcart_id = None
+    shopcart_id = factory.Sequence(lambda n: n)
     quantity = FuzzyInteger(1, 10)
     price = FuzzyFloat(0.1, 51.0)
     shopcart = factory.SubFactory(ShopcartFactory)

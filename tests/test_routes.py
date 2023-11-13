@@ -412,9 +412,9 @@ class TestYourResourceServer(TestCase):  # pylint: disable=too-many-public-metho
         # Define the new quantity for the cart item
         new_quantity = 10
         # Retrieve the cart item for testing
-        cart_item_for_testing = CartItem.find_cart_item_by_shopcart_id_and_product_id(
-            shop_cart.id, cart_item.product_id
-        )[0]
+        cart_item_for_testing = CartItem.find(
+            shopcart_id=shop_cart.id, product_id=cart_item.product_id
+        )
         # Update the cart item's quantity
         update_data = {"quantity": new_quantity}
         resp = self.client.put(

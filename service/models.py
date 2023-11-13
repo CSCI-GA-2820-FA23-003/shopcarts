@@ -109,8 +109,9 @@ class CartItem(db.Model, PersistentBase):
     """
 
     # Table Schema
+    # We have a composite primary key of shopcart_id & product_id
     shopcart_id = db.Column(
-        db.Integer, db.ForeignKey("shopcart.id", ondelete="CASCADE"), nullable=False
+        db.Integer, db.ForeignKey("shopcart.id", ondelete="CASCADE"), primary_key=True
     )
     product_id = db.Column(db.Integer, primary_key=True)
     quantity = db.Column(db.Integer, nullable=False)
@@ -128,6 +129,12 @@ class CartItem(db.Model, PersistentBase):
         """
         try:
             logger.info("Creating %s", self.product_id)
+
+            # Add extra check to ensure primary keys (product_id & shopcart_id) are present
+            if self.product_id is None or self.shopcart_id is None:
+                raise DataValidationError(
+                    "Invalid CartItem: missing product_id or shopcart_id"
+                )
             db.session.add(self)
             db.session.commit()
         except IntegrityError as error:
@@ -179,23 +186,16 @@ class CartItem(db.Model, PersistentBase):
         return self
 
     @classmethod
-    def find_cart_item_by_shopcart_id_and_product_id(cls, shopcart_id, product_id):
-        """Returns cart_item in a given shopcart
-
-        Args:
-            shopcart_id (Integer): the id of the customer you want to match
-            product_id (Integer): the id of the product you want to match
-        """
+    def find(cls, shopcart_id, product_id):
+        """Finds a record by it's ID"""
         logger.info(
-            "Processing shopcart_id and product_id query for %s and %s ...",
+            "Processing lookup for shopcart_id %s & product_id %s  ...",
             shopcart_id,
             product_id,
         )
-        return (
-            cls.query.filter(cls.shopcart_id == shopcart_id)
-            .filter(cls.product_id == product_id)
-            .all()
-        )
+        return cls.query.filter_by(
+            shopcart_id=shopcart_id, product_id=product_id
+        ).first()
 
 
 ######################################################################
