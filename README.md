@@ -88,12 +88,12 @@ index             GET      /
 list_shopcarts     GET      /shopcarts
 create_shopcarts   POST     shopcarts
 get_shopcarts      GET      /shopcarts/<int:shopcart_id>
-update_shopcarts   PUT      /???/<???>
+update_shopcarts   PUT      /shopcarts/<int:shopcart_id>
 delete_shopcarts   DELETE   /shopcarts/<int:shopcart_id>
 
 list_cart_items    GET      /shopcarts/<int:shopcart_id>/items
 create_cart_items  POST     /shopcarts/<int:shopcart_id>/items
-get_cart_items     GET      /???/<???>/???/<???>
+get_cart_items     GET      /shopcarts/<int:shopcart_id>/items/<int:product_id>
 update_cart_items  PUT      /shopcarts/<int:shopcart_id>/items/<int:product_id>
 clear_items_in_cart  PUT   /shopcarts/<int:shopcart_id>/items/clear
 ```
