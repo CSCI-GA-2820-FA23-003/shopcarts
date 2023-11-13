@@ -274,3 +274,24 @@ class Shopcart(db.Model, PersistentBase):
         """
         logger.info("Processing customer id query for %s ...", customer_id)
         return cls.query.filter(cls.customer_id == customer_id)
+
+    @classmethod
+    def find_shopcarts_with_product_id(cls, product_id):
+        """
+        Returns a list of Shopcarts that contain a specific product_id
+
+        Args:
+        product_id (int): The product ID to search for
+        """
+        logger.info(
+            "Processing query for shopcarts containing product %s ...", product_id
+        )
+        # Query the CartItem table for all items with the given product_id
+        cart_items = CartItem.query.filter(CartItem.product_id == product_id).all()
+
+        # Extract shopcart_ids from the CartItems
+        shopcart_ids = [item.shopcart_id for item in cart_items]
+
+        # Query the Shopcart table for all shopcarts with the extracted shopcart_ids
+        shopcarts = cls.query.filter(cls.id.in_(shopcart_ids)).all()
+        return shopcarts
