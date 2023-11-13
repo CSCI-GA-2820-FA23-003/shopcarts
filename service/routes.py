@@ -121,8 +121,13 @@ def list_shopcarts():
 
     # process the query string if any
     customer_id = request.args.get("customer_id")
+    product_id = request.args.get("product_id")
+
+    # The customer is unique
     if customer_id:
         shopcarts = Shopcart.find_shopcart_by_customer_id(customer_id)
+    elif product_id:
+        shopcarts = Shopcart.find_shopcarts_with_product_id(product_id)
     else:
         shopcarts = Shopcart.all()
     results = [shopcart.serialize() for shopcart in shopcarts]

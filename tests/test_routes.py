@@ -79,6 +79,14 @@ class TestYourResourceServer(TestCase):  # pylint: disable=too-many-public-metho
             shopcarts.append(shopcart)
         return shopcarts
 
+    def _add_cart_item_to_shopcart(self, shopcart, cart_item):
+        """Helper function to add a cart item to a shopcart"""
+        self.client.post(
+            f"{BASE_URL}/{shopcart.id}/items",
+            json=cart_item.serialize(),
+            content_type="application/json",
+        )
+
     ######################################################################
     #  S H O P C A R T   T E S T   C A S E S
     ######################################################################
@@ -148,6 +156,41 @@ class TestYourResourceServer(TestCase):  # pylint: disable=too-many-public-metho
         self._create_shopcarts(3)
         resp = self.client.get(BASE_URL, query_string=f"customer_id={4}")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+    def test_get_shopcarts_by_product_id(self):
+        """It should return correct shopcarts for a given product id"""
+        # Create two cart items
+        item1 = CartItemFactory()
+        item2 = CartItemFactory()
+
+        # Create three shopcarts
+        shopcarts = self._create_shopcarts(3)
+
+        # Add item1 to first two shopcarts and item2 to third shopcart
+        self._add_cart_item_to_shopcart(shopcarts[0], item1)
+        self._add_cart_item_to_shopcart(shopcarts[1], item1)
+        self._add_cart_item_to_shopcart(shopcarts[2], item2)
+
+        # Test querying shopcarts with item1's product_id
+        resp = self.client.get(BASE_URL, query_string=f"product_id={item1.product_id}")
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.get_json()
+        self.assertEqual(len(data), 2)  # Should return two shopcarts
+        for shopcart in data:
+            self.assertTrue(
+                any(
+                    item["product_id"] == item1.product_id for item in shopcart["items"]
+                )
+            )
+
+        # Test querying shopcarts with item2's product_id
+        resp = self.client.get(BASE_URL, query_string=f"product_id={item2.product_id}")
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.get_json()
+        self.assertEqual(len(data), 1)  # Should return one shopcart
+        self.assertTrue(
+            any(item["product_id"] == item2.product_id for item in data[0]["items"])
+        )
 
     def test_delete_shopcart(self):
         """It should delete a shopcart by id"""
