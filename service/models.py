@@ -186,10 +186,15 @@ class CartItem(db.Model, PersistentBase):
         return self
 
     @classmethod
-    def find(cls, shopcart_id, product_id):
-        """Finds a record by it's ID"""
+    def find_by_shopcart_id_and_product_id(cls, shopcart_id, product_id):
+        """Returns cart_item in a given shopcart
+
+        Args:
+            shopcart_id (Integer): the id of the shopcart you want to match
+            product_id (Integer): the id of the product you want to match
+        """
         logger.info(
-            "Processing lookup for shopcart_id %s & product_id %s  ...",
+            "Processing lookup for shopcart_id and product_id query for %s and %s ...",
             shopcart_id,
             product_id,
         )

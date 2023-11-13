@@ -183,7 +183,9 @@ def create_items(shopcart_id):
         data["quantity"] = 1
 
     # check if the item already exits in the shopcart
-    cart_item = CartItem.find(shopcart_id, product_id=data["product_id"])
+    cart_item = CartItem.find_by_shopcart_id_and_product_id(
+        shopcart_id, product_id=data["product_id"]
+    )
 
     # If item already exists in cart, increment its quantity
     if cart_item:
@@ -245,7 +247,7 @@ def delete_item(shopcart_id, item_id):
     )
 
     # See if the item exists and delete it if it does
-    item = CartItem.find(shopcart_id, product_id=item_id)
+    item = CartItem.find_by_shopcart_id_and_product_id(shopcart_id, product_id=item_id)
     # note: if shopcart not exist, do nothing
     if item:
         item.delete()
@@ -303,7 +305,7 @@ def update_items(shopcart_id, product_id):
         )
 
     # Locate the product in the shopcart
-    cart_item = CartItem.find(shopcart_id, product_id)
+    cart_item = CartItem.find_by_shopcart_id_and_product_id(shopcart_id, product_id)
 
     if not cart_item:
         # Return a 404 response if the product is not found in the shopcart
