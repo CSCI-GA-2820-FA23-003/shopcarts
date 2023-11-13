@@ -261,6 +261,31 @@ def delete_item(shopcart_id, item_id):
 
 
 ######################################################################
+#  DELETE MULTIPLE PRODUCTS FROM A SHOPCART
+######################################################################
+@app.route("/shopcarts/<int:shopcart_id>/items", methods=["DELETE"])
+def delete_items(shopcart_id):
+    """
+    Delete multiple products from a customer shopcart
+
+    This endpoint will delete multiple products based on the list of product IDs provided in the request body
+    """
+    app.logger.info("Request to delete products for shopcart_id: %s", shopcart_id)
+
+    # The request JSON should include a list of product IDs under the key "product_ids"
+    data = request.get_json()
+    product_ids = data.get("product_ids", [])
+
+    # Iterate through the list of product IDs and delete each product
+    for product_id in product_ids:
+        product = CartItem.find_by_shopcart_id_and_product_id(shopcart_id, product_id)
+        if product:
+            product.delete()
+
+    return make_response("", status.HTTP_204_NO_CONTENT)
+
+
+######################################################################
 #  CLEAR (REMOVE) ALL ITEMS IN A SHOPCART
 ######################################################################
 @app.route("/shopcarts/<int:shopcart_id>/clear", methods=["PUT"])
