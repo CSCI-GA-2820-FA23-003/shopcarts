@@ -225,12 +225,17 @@ def create_items(shopcart_id):
 
 
 ######################################################################
-#  GET ALL ITEMS IN A SHOPCART
+#  LIST ITEMS IN A SHOPCART
 ######################################################################
 @app.route("/shopcarts/<int:shopcart_id>/items", methods=["GET"])
 def list_items(shopcart_id):
-    """Returns all of the cart items for a Shopcart"""
-    app.logger.info("Request for all cart items for Shopcart with id: %s", shopcart_id)
+    """
+    If there is a product_id query parameter, return the queried items for the specified shopcart.
+    Else return all items for the specified shopcart.
+
+    return: a list of items in the specified shopcart
+    """
+    app.logger.info("Request for cart items for Shopcart with id: %s", shopcart_id)
 
     # See if the shopcart exists and abort if it doesn't
     shopcart = Shopcart.find(shopcart_id)
@@ -240,9 +245,26 @@ def list_items(shopcart_id):
             f"Shopcart with id '{shopcart_id}' could not be found.",
         )
 
-    # Get the list of cart items from the shopcart
-    results = [item.serialize() for item in shopcart.items]
+    # Get the list of items from the shopcart
+    items = shopcart.items
 
+    # Process query parameters if any
+    product_id = request.args.get("product_id")
+
+    if product_id:
+        # If any product_id does not exist, return a 404
+        if not any(item.product_id == int(product_id) for item in items):
+            abort(
+                status.HTTP_404_NOT_FOUND,
+                f"Item with product_id '{product_id}' is not found in Shopcart with shopcart_id '{shopcart_id}'.",
+            )
+        # Filter items based on the queried product_ids
+        items = [item for item in items if item.product_id == int(product_id)]
+
+    # Serialize the filtered items
+    results = [item.serialize() for item in items]
+
+    app.logger.info("Return %d items in the shopcart.", len(results))
     return make_response(jsonify(results), status.HTTP_200_OK)
 
 
