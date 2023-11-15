@@ -384,6 +384,44 @@ def update_items(shopcart_id, product_id):
 
 
 ######################################################################
+#  GET AN ITEM FROM A SHOPCART BY ID
+######################################################################
+@app.route("/shopcarts/<int:shopcart_id>/items/<int:product_id>", methods=["GET"])
+def get_cart_item(shopcart_id, product_id):
+    """
+    Retrieve a specific item from a shopcart by product ID.
+
+    This endpoint returns the details of a specific item in a given shopcart.
+    If the item or shopcart does not exist, it returns a 404 Not Found.
+    """
+    app.logger.info(
+        "Request to get item with product_id: %s from shopcart_id: %s",
+        product_id,
+        shopcart_id,
+    )
+
+    # Check if the shopcart exists
+    shopcart = Shopcart.find(shopcart_id)
+    if not shopcart:
+        abort(
+            status.HTTP_404_NOT_FOUND,
+            f"Shopcart with id '{shopcart_id}' could not be found.",
+        )
+
+    # Locate the product in the shopcart
+    cart_item = CartItem.find_by_shopcart_id_and_product_id(shopcart_id, product_id)
+    if not cart_item:
+        # Return a 404 response if the product is not found in the shopcart
+        abort(
+            status.HTTP_404_NOT_FOUND,
+            f"Product with id '{product_id}' not found in shopcart {shopcart_id}",
+        )
+
+    # Return the item details
+    return make_response(jsonify(cart_item.serialize()), status.HTTP_200_OK)
+
+
+######################################################################
 #  U T I L I T Y   F U N C T I O N S
 ######################################################################
 
