@@ -251,7 +251,6 @@ def list_items(shopcart_id):
     # Process query parameters if any
     product_id = request.args.get("product_id")
 
-    # Do if product_id is not None or an empty string
     if product_id:
         # If any product_id does not exist, return a 404
         if not any(item.product_id == int(product_id) for item in items):

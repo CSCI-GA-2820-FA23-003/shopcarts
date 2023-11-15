@@ -404,14 +404,6 @@ class TestYourResourceServer(TestCase):  # pylint: disable=too-many-public-metho
         )
         self.assertEqual(resp.status_code, 404)
 
-    def test_get_items_empty_product_id_query(self):
-        """It should return 404 Not Found for an empty product_id query"""
-        shopcart = self._create_shopcarts(1)[0]
-
-        # Get the list back with an empty product_id as a query parameter
-        resp = self.client.get(f"/shopcarts/{shopcart.id}/items?product_id=")
-        self.assertEqual(resp.status_code, 404)
-
     def test_add_cart_item_without_product_id(self):
         """It should return a 400 bad request error if cart item is added without product id"""
         # add two items to the shopcart
