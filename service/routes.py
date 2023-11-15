@@ -387,7 +387,7 @@ def update_items(shopcart_id, product_id):
 #  GET AN ITEM FROM A SHOPCART BY ID
 ######################################################################
 @app.route("/shopcarts/<int:shopcart_id>/items/<int:product_id>", methods=["GET"])
-def get_item_by_id(shopcart_id, product_id):
+def get_cart_items(shopcart_id, product_id):
     """
     Retrieve a specific item from a shopcart by product ID.
 
