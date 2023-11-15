@@ -361,6 +361,57 @@ class TestYourResourceServer(TestCase):  # pylint: disable=too-many-public-metho
         resp = self.client.get(f"{BASE_URL}/{shop_cart.id + 1}/items")
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
+    def test_get_item_successful_with_query(self):
+        """It should get a filtered list of items in a shopcart based on query parameters"""
+        shopcart = self._create_shopcarts(1)[0]
+
+        # Create two items using CartItemFactory
+        cart_item1 = CartItemFactory(shopcart_id=shopcart.id)
+        cart_item2 = CartItemFactory(shopcart_id=shopcart.id)
+
+        # Post the items to the shopcart
+        self.client.post(f"/shopcarts/{shopcart.id}/items", json=cart_item1.serialize())
+        self.client.post(f"/shopcarts/{shopcart.id}/items", json=cart_item2.serialize())
+
+        # Get the list back with a query parameter
+        resp = self.client.get(
+            f"/shopcarts/{shopcart.id}/items?product_id={cart_item1.product_id}"
+        )
+        self.assertEqual(resp.status_code, 200)
+
+        data = resp.get_json()
+        self.assertEqual(len(data), 1)
+        self.assertEqual(data[0]["product_id"], cart_item1.product_id)
+
+    def test_get_items_nonexistent_product_id_query(self):
+        """
+        It should return an 404 Not Found for a non-existent product_id query
+        """
+        shopcart = self._create_shopcarts(1)[0]
+
+        # Create two items using CartItemFactory
+        cart_item1 = CartItemFactory(shopcart_id=shopcart.id)
+        cart_item2 = CartItemFactory(shopcart_id=shopcart.id)
+
+        # Post the items to the shopcart
+        self.client.post(f"/shopcarts/{shopcart.id}/items", json=cart_item1.serialize())
+        self.client.post(f"/shopcarts/{shopcart.id}/items", json=cart_item2.serialize())
+
+        # Get the list back with a non-existent product_id as a query parameter
+        non_existent_product_id = cart_item1.product_id + cart_item2.product_id + 1
+        resp = self.client.get(
+            f"/shopcarts/{shopcart.id}/items?product_id={non_existent_product_id}"
+        )
+        self.assertEqual(resp.status_code, 404)
+
+    def test_get_items_empty_product_id_query(self):
+        """It should return 404 Not Found for an empty product_id query"""
+        shopcart = self._create_shopcarts(1)[0]
+
+        # Get the list back with an empty product_id as a query parameter
+        resp = self.client.get(f"/shopcarts/{shopcart.id}/items?product_id=")
+        self.assertEqual(resp.status_code, 404)
+
     def test_add_cart_item_without_product_id(self):
         """It should return a 400 bad request error if cart item is added without product id"""
         # add two items to the shopcart
