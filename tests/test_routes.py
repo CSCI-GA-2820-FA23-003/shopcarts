@@ -670,3 +670,42 @@ class TestYourResourceServer(TestCase):  # pylint: disable=too-many-public-metho
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = resp.get_json()
         self.assertEqual(data, [])
+
+    def test_retrieve_item_success_with_valid_item_and_shopcart(self):
+        """It should successfully retrieve an item by ID from an existing shopcart"""
+        shop_cart = self._create_shopcarts(1)[0]
+        cart_item = CartItemFactory()
+        self.client.post(f"{BASE_URL}/{shop_cart.id}/items", json=cart_item.serialize())
+        resp = self.client.get(
+            f"{BASE_URL}/{shop_cart.id}/items/{cart_item.product_id}"
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.get_json()
+        self.assertEqual(data["product_id"], cart_item.product_id)
+
+    def test_retrieve_item_fails_with_invalid_item_in_valid_shopcart(self):
+        """It should return a 404 NOT FOUND for a non-existing item ID in an existing shopcart"""
+        shop_cart = self._create_shopcarts(1)[0]
+        non_existing_product_id = 99999
+        resp = self.client.get(
+            f"{BASE_URL}/{shop_cart.id}/items/{non_existing_product_id}"
+        )
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_retrieve_item_fails_with_valid_item_in_invalid_shopcart(self):
+        """It should return a 404 NOT FOUND for an existing item in a non-existing shopcart"""
+        non_existent_shopcart_id = 99999
+        cart_item = CartItemFactory()
+        resp = self.client.get(
+            f"{BASE_URL}/{non_existent_shopcart_id}/items/{cart_item.product_id}"
+        )
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_retrieve_item_fails_with_invalid_item_and_shopcart(self):
+        """It should return a 404 NOT FOUND for a non-existing item in a non-existing shopcart"""
+        non_existent_shopcart_id = 99999
+        non_existing_product_id = 88888
+        resp = self.client.get(
+            f"{BASE_URL}/{non_existent_shopcart_id}/items/{non_existing_product_id}"
+        )
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
