@@ -54,6 +54,33 @@ $ honcho start
 
 You should be able to reach the service at: http://localhost:8000. The port that is used is controlled by an environment variable defined in the .flaskenv file which Flask uses to load it's configuration from the environment by default.
 
+## Deploying to Local K8 Cluster
+
+#### Step 1: Create a kubernetes cluster
+This assumes the Makefile has the below command:
+```
+make cluster
+```
+
+#### Step 2: Build image and push to local registry
+```
+docker build -t shopcarts:1.0 .
+docker tag shopcarts:1.0 cluster-registry:32000/shopcarts:1.0
+sudo sh -c 'echo "127.0.0.1 cluster-registry" >> /etc/hosts'
+docker push cluster-registry:32000/shopcarts:1.0
+```
+
+#### Step 3: Deploy the K8 cluster
+```
+kubectl apply -f k8s/
+```
+
+#### Optional: Cleanup
+```
+make cluster-rm
+```
+
+
 ## Information about this repo
 
 ### Models
