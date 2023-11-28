@@ -3,7 +3,7 @@ kind: Service
 metadata:
   name: shopcarts
 spec:
-  type: ClusterIP
+  type: NodePort
   selector:
     app: shopcarts
   ports:
