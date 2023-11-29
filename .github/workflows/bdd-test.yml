@@ -61,4 +61,4 @@ jobs:
       - name: Run Integration Tests
         run: behave
         env:
-          BASE_URL: "localhost:8000"
+          BASE_URL: "http://localhost:8000"
