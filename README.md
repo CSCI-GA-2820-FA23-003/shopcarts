@@ -80,7 +80,6 @@ kubectl apply -f k8s/
 make cluster-rm
 ```
 
-
 ## Information about this repo
 
 ### Models
