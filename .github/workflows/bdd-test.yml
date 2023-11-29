@@ -57,7 +57,8 @@ jobs:
           echo "\n*** SERVER IS RUNNING ***"
         env:
           DATABASE_URI: "postgresql://postgres:pgs3cr3t@postgres:5432/testdb"
-          BASE_URL: "localhost:8000"
 
       - name: Run Integration Tests
         run: behave
+        env:
+          BASE_URL: "localhost:8000"
