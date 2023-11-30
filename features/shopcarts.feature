@@ -42,3 +42,15 @@ Scenario: Create a shopcart
     And I press the "Retrieve" button
     Then I should see the message "Success"
     And I should see "4" in the "customer_id" field
+
+Scenario: Delete a shopcart
+    When I visit the "Home Page"
+    And I set the "customer_id" to "3"
+    And I press the "Search" button
+    Then I should see the message "Success"
+    And I should see "customer-id-3" in the results
+    When I press the "Delete" button
+    Then I should see the message "Shopcart has been Deleted!"
+    When I press the "Search" button
+    Then I should see the message "Success"
+    And I should not see "customer-id-3" in the results
