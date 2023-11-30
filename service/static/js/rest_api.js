@@ -14,7 +14,13 @@ $(function () {
     function clear_form_data() {
         $("#customer_id").val("");
         $("#shopcart_id").val("");
-        // TODO: Add other fields here
+    }
+
+    function clear_cartitem_form_data() {
+        $("#product_id").val("");
+        $("#cartitem_shopcart_id").val("");
+        $("#price").val("");
+        $("#quantity").val("");
     }
 
     // Updates the flash message area
@@ -167,9 +173,8 @@ $(function () {
     // ****************************************
 
     $("#clear-btn").click(function () {
-        $("#shopcart_id").val("");
+        clear_form_data();
         $("#flash_message").empty();
-        clear_form_data()
     });
 
     // ****************************************
@@ -243,6 +248,54 @@ $(function () {
             flash_message(res.responseJSON.message, "danger")
         });
 
+    });
+
+
+    // ****************************************
+    // Clear the CartItem form
+    // ****************************************
+
+    $("#cartitem-clear-btn").click(function () {
+        $("#product_id").val("");
+        $("#flash_message").empty();
+        clear_cartitem_form_data();
+    });
+
+    // ****************************************
+    // Create a CartItem in a Shopcart
+    // ****************************************
+
+    $("#cartitem-create-btn").click(function () {
+
+        const shopcart_id = $("#cartitem_shopcart_id").val();
+        const product_id = $("#product_id").val();
+        const price = $("#price").val();
+        const quantity = $("#quantity").val();
+
+        const data = {
+            price,
+            product_id,
+            quantity,
+            shopcart_id
+        };
+
+        $("#flash_message").empty();
+        
+        let ajax = $.ajax({
+            type: "POST",
+            url: `/shopcarts/${shopcart_id}/items`,
+            contentType: "application/json",
+            data: JSON.stringify(data),
+        });
+
+        ajax.done(function(res){
+            update_form_data(res)
+            flash_message("Success", "success")
+        });
+
+        ajax.fail(function(res){
+            flash_message(res.responseJSON.message, "danger")
+        });
     });
 
 })
