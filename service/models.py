@@ -6,7 +6,7 @@ All of the models are stored in this module
 import logging
 from abc import abstractmethod
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, DataError
 from psycopg2.errors import UniqueViolation
 
 logger = logging.getLogger("flask.app")
@@ -55,7 +55,7 @@ class PersistentBase:
             self.id = None  # id must be none to generate next primary key
             db.session.add(self)
             db.session.commit()
-        except IntegrityError as error:
+        except (IntegrityError, DataError) as error:
             if isinstance(error.orig, UniqueViolation):
                 # Capture duplicate data error
                 raise DataConflictError(

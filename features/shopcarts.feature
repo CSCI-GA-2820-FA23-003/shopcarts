@@ -28,3 +28,45 @@ Scenario: List all shopcarts
     And I should see "customer-id-1" in the results
     And I should see "customer-id-2" in the results
     And I should not see "customer-id-4" in the results
+
+Scenario: Create a shopcart
+    When I visit the "Home Page"
+    And I set the "customer_id" to "4"
+    And I press the "Create" button
+    Then I should see the message "Success"
+    When I copy the "shopcart_id" field
+    And I press the "Clear" button
+    Then the "customer_id" field should be empty
+    And the "shopcart_id" field should be empty
+    When I paste the "shopcart_id" field
+    And I press the "Retrieve" button
+    Then I should see the message "Success"
+    And I should see "4" in the "customer_id" field
+
+Scenario: Delete a shopcart
+    When I visit the "Home Page"
+    And I set the "customer_id" to "3"
+    And I press the "Search" button
+    Then I should see the message "Success"
+    And I should see "customer-id-3" in the results
+    When I press the "Delete" button
+    Then I should see the message "Shopcart has been Deleted!"
+    When I press the "Search" button
+    Then I should see the message "Success"
+    And I should not see "customer-id-3" in the results
+
+Scenario: Add product to a shopcart
+    When I visit the "Home Page"
+    And I press the "Search" button
+    Then I should see the message "Success"
+    And I should see "customer-id-1" in the results
+    When I copy the "shopcart_id" field
+    And I paste the "CartItem Shopcart ID" field
+    And I set the "product_id" to "4"
+    And I set the "price" to "5"
+    And I set the "quantity" to "2"
+    And I press the "CartItem-Create" button
+    Then I should see the message "Success"
+    When I press the "Search" button
+    Then I should see "product-id-4" in the results
+
