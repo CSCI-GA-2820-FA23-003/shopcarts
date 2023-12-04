@@ -33,7 +33,7 @@ def index():
 ######################################################################
 #  GET SHOPCART BY ID
 ######################################################################
-@app.route("/shopcarts/<int:shopcart_id>", methods=["GET"])
+@app.route("/api/shopcarts/<int:shopcart_id>", methods=["GET"])
 def get_shopcart_by_id(shopcart_id):
     """
     Retrieve a single Shopcart
@@ -56,7 +56,7 @@ def get_shopcart_by_id(shopcart_id):
 ######################################################################
 #  CREATE NEW SHOPCART
 ######################################################################
-@app.route("/shopcarts", methods=["POST"])
+@app.route("/api/shopcarts", methods=["POST"])
 def create_shopcart():
     """
     Creates A SHOPCART FOR A CUSTOMER
@@ -82,7 +82,7 @@ def create_shopcart():
 ######################################################################
 #  UPDATE EXISTING SHOPCART
 ######################################################################
-@app.route("/shopcarts/<int:shopcart_id>", methods=["PUT"])
+@app.route("/api/shopcarts/<int:shopcart_id>", methods=["PUT"])
 def update_shopcart(shopcart_id):
     """
     Edit existing shopcart for a customer
@@ -109,7 +109,7 @@ def update_shopcart(shopcart_id):
 ######################################################################
 #  LIST ALL SHOPCARTS
 ######################################################################
-@app.route("/shopcarts")
+@app.route("/api/shopcarts")
 def list_shopcarts():
     """
     If there is shopcart query, return the queried shopcart
@@ -141,7 +141,7 @@ def list_shopcarts():
 ######################################################################
 #  DELETE SHOPCART BY ID
 ######################################################################
-@app.route("/shopcarts/<int:shopcart_id>", methods=["DELETE"])
+@app.route("/api/shopcarts/<int:shopcart_id>", methods=["DELETE"])
 def delete_shopcart(shopcart_id):
     """Delete a shopcart given shopcart id"""
     app.logger.info("Delete the shopcart with id: %s", shopcart_id)
@@ -157,7 +157,7 @@ def delete_shopcart(shopcart_id):
 ######################################################################
 #  CREATE ITEM IN A SHOPCART
 ######################################################################
-@app.route("/shopcarts/<int:shopcart_id>/items", methods=["POST"])
+@app.route("/api/shopcarts/<int:shopcart_id>/items", methods=["POST"])
 def create_items(shopcart_id):
     """
     Create an item on an Shopcart
@@ -220,7 +220,7 @@ def create_items(shopcart_id):
 ######################################################################
 #  LIST ITEMS IN A SHOPCART
 ######################################################################
-@app.route("/shopcarts/<int:shopcart_id>/items", methods=["GET"])
+@app.route("/api/shopcarts/<int:shopcart_id>/items", methods=["GET"])
 def list_items(shopcart_id):
     """
     If there is a product_id query parameter, return the queried items for the specified shopcart.
@@ -264,7 +264,7 @@ def list_items(shopcart_id):
 ######################################################################
 #  DELETE AN ITEM FROM A SHOPCART
 ######################################################################
-@app.route("/shopcarts/<int:shopcart_id>/items/<int:item_id>", methods=["DELETE"])
+@app.route("/api/shopcarts/<int:shopcart_id>/items/<int:item_id>", methods=["DELETE"])
 def delete_item(shopcart_id, item_id):
     """
     Delete an item from a customer shopcart
@@ -287,7 +287,7 @@ def delete_item(shopcart_id, item_id):
 ######################################################################
 #  DELETE MULTIPLE PRODUCTS FROM A SHOPCART
 ######################################################################
-@app.route("/shopcarts/<int:shopcart_id>/items", methods=["DELETE"])
+@app.route("/api/shopcarts/<int:shopcart_id>/items", methods=["DELETE"])
 def delete_items(shopcart_id):
     """
     Delete multiple products from a customer shopcart
@@ -312,7 +312,7 @@ def delete_items(shopcart_id):
 ######################################################################
 #  CLEAR (REMOVE) ALL ITEMS IN A SHOPCART
 ######################################################################
-@app.route("/shopcarts/<int:shopcart_id>/clear", methods=["PUT"])
+@app.route("/api/shopcarts/<int:shopcart_id>/clear", methods=["PUT"])
 def clear_items_in_cart(shopcart_id):
     """
     Clear items in a customer shopcart
@@ -338,7 +338,7 @@ def clear_items_in_cart(shopcart_id):
 ######################################################################
 #  UPDATE AN ITEM IN A SHOPCART
 ######################################################################
-@app.route("/shopcarts/<int:shopcart_id>/items/<int:product_id>", methods=["PUT"])
+@app.route("/api/shopcarts/<int:shopcart_id>/items/<int:product_id>", methods=["PUT"])
 def update_items(shopcart_id, product_id):
     """
     Update an item in the shopcart quantitatively
@@ -401,7 +401,7 @@ def update_items(shopcart_id, product_id):
 ######################################################################
 #  GET AN ITEM FROM A SHOPCART BY ID
 ######################################################################
-@app.route("/shopcarts/<int:shopcart_id>/items/<int:product_id>", methods=["GET"])
+@app.route("/api/shopcarts/<int:shopcart_id>/items/<int:product_id>", methods=["GET"])
 def get_cart_item(shopcart_id, product_id):
     """
     Retrieve a specific item from a shopcart by product ID.
