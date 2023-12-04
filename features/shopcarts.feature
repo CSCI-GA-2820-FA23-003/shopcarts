@@ -70,3 +70,34 @@ Scenario: Add product to a shopcart
     When I press the "Search" button
     Then I should see "product-id-4" in the results
 
+Scenario: Delete an Item from a Shopcart
+    When I visit the "Home Page"
+    And I press the "Search" button
+    Then I should see the message "Success"
+    And I should see "customer-id-1" in the results
+    When I copy the "shopcart_id" field
+    And I paste the "CartItem Shopcart ID" field
+    And I set the "product_id" to "4"
+    And I set the "price" to "5"
+    And I set the "quantity" to "2"
+    And I press the "CartItem-Create" button
+    Then I should see the message "Success"
+    When I press the "Search" button
+    Then I should see "product-id-4" in the results
+    When I visit the "Home Page"
+    And I press the "Search" button
+    Then I should see the message "Success"
+    And I should see "customer-id-1" in the results
+    When I copy the "shopcart_id" field
+    And I paste the "CartItem Shopcart ID" field
+    And I set the "product_id" to "4"
+    And I press the "CartItem-Delete" button
+    Then I should see the message "Success"
+    When I visit the "Home Page"
+    And I press the "Search" button
+    Then I should see the message "Success"
+    And I should see "customer-id-1" in the results
+    When I set the "Customer ID" to "4"
+    And I press the "Search" button
+    Then I should see the message "Success"
+    And I should not see "product-id-4" in the results
