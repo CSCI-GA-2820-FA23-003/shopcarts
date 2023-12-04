@@ -110,7 +110,7 @@ $ flask routes
 Endpoint                       Methods  Rule
 -----------------------------  -------  -----------------------------------------------------
 index                          GET      /
-health                         GET      /api/health      
+health                         GET      /health      
 
 list_shopcarts                 GET      /api/shopcarts
 create_shopcarts               POST     /api/shopcarts

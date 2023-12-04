@@ -61,7 +61,7 @@ class TestYourResourceServer(TestCase):  # pylint: disable=too-many-public-metho
 
     def test_health(self):
         """It should test health endpoint"""
-        resp = self.client.get("/api/health")
+        resp = self.client.get("/health")
         self.assertEqual(resp.status_code, 200)
         data = resp.get_json()
         self.assertEqual(data["status"], "OK")

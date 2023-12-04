@@ -15,7 +15,7 @@ from . import app  # Import Flask application
 ############################################################
 # Health Endpoint
 ############################################################
-@app.route("/api/health")
+@app.route("/health")
 def health():
     """Health Status"""
     return jsonify(status="OK"), status.HTTP_200_OK
