@@ -17,7 +17,7 @@ from service.common import status  # HTTP Status Codes
 #     "DATABASE_URI", "postgresql://postgres:postgres@localhost:5432/postgres"
 # )
 
-BASE_URL = "/shopcarts"
+BASE_URL = "/api/shopcarts"
 
 
 ######################################################################
@@ -61,7 +61,7 @@ class TestYourResourceServer(TestCase):  # pylint: disable=too-many-public-metho
 
     def test_health(self):
         """It should test health endpoint"""
-        resp = self.client.get("/health")
+        resp = self.client.get("/api/health")
         self.assertEqual(resp.status_code, 200)
         data = resp.get_json()
         self.assertEqual(data["status"], "OK")
@@ -370,12 +370,16 @@ class TestYourResourceServer(TestCase):  # pylint: disable=too-many-public-metho
         cart_item2 = CartItemFactory(shopcart_id=shopcart.id)
 
         # Post the items to the shopcart
-        self.client.post(f"/shopcarts/{shopcart.id}/items", json=cart_item1.serialize())
-        self.client.post(f"/shopcarts/{shopcart.id}/items", json=cart_item2.serialize())
+        self.client.post(
+            f"/api/shopcarts/{shopcart.id}/items", json=cart_item1.serialize()
+        )
+        self.client.post(
+            f"/api/shopcarts/{shopcart.id}/items", json=cart_item2.serialize()
+        )
 
         # Get the list back with a query parameter
         resp = self.client.get(
-            f"/shopcarts/{shopcart.id}/items?product_id={cart_item1.product_id}"
+            f"/api/shopcarts/{shopcart.id}/items?product_id={cart_item1.product_id}"
         )
         self.assertEqual(resp.status_code, 200)
 
@@ -509,7 +513,7 @@ class TestYourResourceServer(TestCase):  # pylint: disable=too-many-public-metho
         shopcart_id = 1
         request_data = {"product_ids": [9999999]}
         response = self.client.delete(
-            f"/shopcarts/{shopcart_id}/items", json=request_data
+            f"/api/shopcarts/{shopcart_id}/items", json=request_data
         )
 
         # Check that the response status code is 204 (No Content)
