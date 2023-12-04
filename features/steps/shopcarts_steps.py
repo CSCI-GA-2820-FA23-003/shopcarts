@@ -16,7 +16,7 @@ HTTP_204_NO_CONTENT = 204
 def step_impl(context):
     """Delete all shopcarts and load new ones"""
 
-    rest_endpoint = f"{context.base_url}/shopcarts"
+    rest_endpoint = f"{context.base_url}/api/shopcarts"
     context.resp = requests.get(rest_endpoint)
     assert context.resp.status_code == HTTP_200_OK
 
@@ -37,7 +37,7 @@ def step_impl(context):
 def step_impl(context):
     """Delete all cart items and load new ones"""
 
-    rest_endpoint = f"{context.base_url}/shopcarts"
+    rest_endpoint = f"{context.base_url}/api/shopcarts"
     context.resp = requests.get(rest_endpoint)
     assert context.resp.status_code == HTTP_200_OK
 
@@ -56,7 +56,7 @@ def step_impl(context):
             "shopcart_id": shopcart_id,
         }
 
-        rest_endpoint = f"{context.base_url}/shopcarts/{shopcart_id}/items"
+        rest_endpoint = f"{context.base_url}/api/shopcarts/{shopcart_id}/items"
         context.resp = requests.post(rest_endpoint, json=payload)
         assert context.resp.status_code == HTTP_201_CREATED
 
@@ -72,7 +72,7 @@ def step_impl(context):
 @given("the server is running")
 def step_impl(context):
     """Verify the server is running"""
-    rest_endpoint = f"{context.base_url}/shopcarts"
+    rest_endpoint = f"{context.base_url}/api/shopcarts"
     context.resp = requests.get(rest_endpoint)
     assert context.resp.status_code == HTTP_200_OK
 
