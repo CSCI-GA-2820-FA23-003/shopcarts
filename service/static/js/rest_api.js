@@ -298,4 +298,34 @@ $(function () {
         });
     });
 
+    // ****************************************
+    // Delete a CartItem in a Shopcart
+    // ****************************************
+
+    $("#cartitem-delete-btn").click(function () {
+        const shopcart_id = $("#cartitem_shopcart_id").val();
+        const product_id = $("#product_id").val();
+
+        const data = {
+            product_id,
+            shopcart_id
+        };
+
+        $("#flash_message").empty();
+        let ajax = $.ajax({
+            type: "DELETE",
+            url: `/api/shopcarts/${shopcart_id}/items/${product_id}`,
+            contentType: "application/json",
+            data: JSON.stringify(data),
+        });
+
+        ajax.done(function(res){
+            clear_form_data()
+            flash_message("Success", "success")
+        });
+
+        ajax.fail(function(res){
+            flash_message("Server error!", "danger")
+        });
+    });
 })
