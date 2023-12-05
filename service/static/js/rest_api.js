@@ -128,17 +128,44 @@ $(function () {
             data: ''
         })
 
-        ajax.done(function(res){
-            //alert(res.toSource())
-            update_form_data(res)
-            flash_message("Success", "success")
-        });
+        // ajax.done(function(res){
+        //     //alert(res.toSource())
+        //     update_form_data(res)
+        //     flash_message("Success", "success")
+        // });
 
+        ajax.done(function(res){
+            update_form_data(res)
+            let table = '<table class="table">'
+            table += '<thead><tr>'
+            table += '<th class="col-md-1">ID</th>'
+            table += '<th class="col-md-1">Customer ID</th>'
+            table += '<th class="col-md-1">Items</th>'
+            table += '</tr><tr>'
+            table += '<th></th><th></th><th></th>'
+            table += '<th class="col-md-1">Product ID</th>'
+            table += '<th class="col-md-1">Price</th>'
+            table += '<th class="col-md-1">Quantity</th>'
+            table += '</tr></thead><tbody>'
+    
+            // Add the retrieved shopcart to the table
+            table += `<tr><td id="shopcart-id-${res.id}">${res.id}</td><td id="customer-id-${res.customer_id}">${res.customer_id}</td><td>${res.items?.length || 0} items</td><td></td><td></td><td></td></tr>`;
+            res.items.forEach(item => {
+                table += `<tr><td></td><td></td><td></td><td id="product-id-${item.product_id}">${item.product_id}</td><td>$${item.price.toFixed(2)}</td><td>${item.quantity}</td></tr>`;
+            });
+            table += '</tbody></table>';
+    
+            // Display the table
+            $("#search_results").empty().append(table);
+            
+            flash_message("Success", "success");
+        });
+        
         ajax.fail(function(res){
             clear_form_data()
             flash_message(res.responseJSON.message, "danger")
         });
-
+        
     });
 
     // ****************************************
@@ -186,63 +213,104 @@ $(function () {
         let customer_id = $("#customer_id").val();
         let shopcart_id = $("#shopcart_id").val();
 
-        let queryString = ""
-
-        if (customer_id) {
-            queryString += 'customer_id=' + customer_id
-        }
-        if (shopcart_id) {
-            if (queryString.length > 0) {
-                queryString += '&shopcart_id=' + shopcart_id
-            } else {
-                queryString += 'shopcart_id=' + shopcart_id
-            }
-        }
+        let queryString = "";
+        let ajax;
 
         $("#flash_message").empty();
-
-        let ajax = $.ajax({
-            type: "GET",
-            url: `/api/shopcarts?${queryString}`,
-            contentType: "application/json",
-            data: ''
-        })
-
-        ajax.done(function(res){
-            //alert(res.toSource())
-            $("#search_results").empty();
-            let table = '<table class="table">'
-            table += '<thead><tr>'
-            table += '<th class="col-md-1">ID</th>'
-            table += '<th class="col-md-1">Customer ID</th>'
-            table += '<th class="col-md-1">Items</th>'
-            table += '</tr><tr>'
-            table += '<th></th><th></th><th></th>'
-            table += '<th class="col-md-1">Product ID</th>'
-            table += '<th class="col-md-1">Price</th>'
-            table += '<th class="col-md-1">Quantity</th>'
-            table += '</tr></thead><tbody>'
-            let first_shopcart = "";
-            for(let i = 0; i < res.length; i++) {
-                let shopcart = res[i];
-                table +=  `<tr id="row_${i}"><td id="shopcart-id-${shopcart.id}">${shopcart.id}</td><td id="customer-id-${shopcart.customer_id}">${shopcart.customer_id}</td><td>${shopcart.items?.length || 0} items</td><td></td><td></td><td></td></tr>`;
-                shopcart.items.forEach(item => {
-                    table += `<tr><td></td><td></td><td></td><td id="product-id-${item.product_id}" class="active">${item.product_id}</td><td class="active">$${item.price.toFixed(2)}</td><td class="active">${item.quantity}</td></tr>`
-                })
-                if (i == 0) {
-                    first_shopcart = shopcart;
+        // Use different route for query by shopcart_id and customer_id
+        if (shopcart_id) {
+            ajax = $.ajax({
+                type: "GET",
+                url: `/api/shopcarts/${shopcart_id}`,
+                contentType: "application/json",
+                data: ''
+            })
+        }
+        else if (customer_id) {
+            queryString += 'customer_id=' + customer_id;
+            ajax = $.ajax({
+                type: "GET",
+                url: `/api/shopcarts?${queryString}`,
+                contentType: "application/json",
+                data: ''
+            })
+        }
+        else{
+            ajax = $.ajax({
+                type: "GET",
+                url: `/api/shopcarts?${queryString}`,
+                contentType: "application/json",
+                data: ''
+            })
+        }
+        // Since query by customer_id returns a list and that query by shopcart-id returns one shopcart, it should be handled differently
+        if(shopcart_id){
+            ajax.done(function(res){
+                update_form_data(res)
+                let table = '<table class="table">'
+                table += '<thead><tr>'
+                table += '<th class="col-md-1">ID</th>'
+                table += '<th class="col-md-1">Customer ID</th>'
+                table += '<th class="col-md-1">Items</th>'
+                table += '</tr><tr>'
+                table += '<th></th><th></th><th></th>'
+                table += '<th class="col-md-1">Product ID</th>'
+                table += '<th class="col-md-1">Price</th>'
+                table += '<th class="col-md-1">Quantity</th>'
+                table += '</tr></thead><tbody>'
+        
+                // Add the retrieved shopcart to the table
+                table += `<tr><td id="shopcart-id-${res.id}">${res.id}</td><td id="customer-id-${res.customer_id}">${res.customer_id}</td><td>${res.items?.length || 0} items</td><td></td><td></td><td></td></tr>`;
+                res.items.forEach(item => {
+                    table += `<tr><td></td><td></td><td></td><td id="product-id-${item.product_id}">${item.product_id}</td><td>$${item.price.toFixed(2)}</td><td>${item.quantity}</td></tr>`;
+                });
+                table += '</tbody></table>';
+        
+                // Display the table
+                $("#search_results").empty().append(table);
+                
+                flash_message("Success", "success");
+            });
+        }
+        else{
+            ajax.done(function(res){
+                //alert(res.toSource())
+                console.log('here')
+                $("#search_results").empty();
+                let table = '<table class="table">'
+                table += '<thead><tr>'
+                table += '<th class="col-md-1">ID</th>'
+                table += '<th class="col-md-1">Customer ID</th>'
+                table += '<th class="col-md-1">Items</th>'
+                table += '</tr><tr>'
+                table += '<th></th><th></th><th></th>'
+                table += '<th class="col-md-1">Product ID</th>'
+                table += '<th class="col-md-1">Price</th>'
+                table += '<th class="col-md-1">Quantity</th>'
+                table += '</tr></thead><tbody>'
+                let first_shopcart = "";
+                for(let i = 0; i < res.length; i++) {
+                    let shopcart = res[i];
+                    table +=  `<tr id="row_${i}"><td id="shopcart-id-${shopcart.id}">${shopcart.id}</td><td id="customer-id-${shopcart.customer_id}">${shopcart.customer_id}</td><td>${shopcart.items?.length || 0} items</td><td></td><td></td><td></td></tr>`;
+                    shopcart.items.forEach(item => {
+                        table += `<tr><td></td><td></td><td></td><td id="product-id-${item.product_id}" class="active">${item.product_id}</td><td class="active">$${item.price.toFixed(2)}</td><td class="active">${item.quantity}</td></tr>`
+                    })
+                    if (i == 0) {
+                        first_shopcart = shopcart;
+                    }
                 }
-            }
-            table += '</tbody></table>';
-            $("#search_results").append(table);
-
-            // copy the first result to the form
-            if (first_shopcart != "") {
-                update_form_data(first_shopcart)
-            }
-
-            flash_message("Success", "success")
-        });
+                table += '</tbody></table>';
+                $("#search_results").append(table);
+    
+                // copy the first result to the form
+                if (first_shopcart != "") {
+                    update_form_data(first_shopcart)
+                }
+    
+                flash_message("Success", "success")
+            });
+        }
+        
 
         ajax.fail(function(res){
             flash_message(res.responseJSON.message, "danger")

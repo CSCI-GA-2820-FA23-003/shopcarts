@@ -101,3 +101,29 @@ Scenario: Delete an Item from a Shopcart
     And I press the "Search" button
     Then I should see the message "Success"
     And I should not see "product-id-4" in the results
+
+Scenario: Query Shopcart by customer id
+    When I visit the "Home Page"
+    And I press the "Search" button
+    Then I should see the message "Success"
+    And I should see "customer-id-1" in the results
+    And I should see "customer-id-2" in the results
+    And I should see "customer-id-3" in the results
+    And I should not see "customer-id-4" in the results
+    When I set the "customer_id" to "4"
+    And I press the "Create" button
+    Then I should see the message "Success"
+    When I copy the "shopcart_id" field
+    And I press the "Clear" button
+    Then the "customer_id" field should be empty
+    And the "shopcart_id" field should be empty
+    When I set the "customer_id" to "4"
+    And I press the "Search" button
+    Then I should see the message "Success"
+    And I should see "customer-id-4" in the results
+    And I should not see "customer-id-3" in the results
+    And I should not see "customer-id-2" in the results
+    And I should not see "customer-id-1" in the results
+    When I press the "Clear" button
+    Then the "customer_id" field should be empty
+    And the "shopcart_id" field should be empty
