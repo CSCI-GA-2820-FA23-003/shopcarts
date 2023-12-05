@@ -127,3 +127,77 @@ Scenario: Query Shopcart by customer id
     When I press the "Clear" button
     Then the "customer_id" field should be empty
     And the "shopcart_id" field should be empty
+
+Scenario: Read Shopcart by shopcart id (Retrieve)
+    When I visit the "Home Page"
+    And I press the "Search" button
+    Then I should see the message "Success"
+    And I should see "customer-id-1" in the results
+    And I should see "customer-id-2" in the results
+    And I should see "customer-id-3" in the results
+    And I should not see "customer-id-4" in the results
+    When I set the "customer_id" to "4"
+    And I press the "Create" button
+    Then I should see the message "Success"
+    When I copy the "shopcart_id" field
+    And I press the "Clear" button
+    Then the "customer_id" field should be empty
+    And the "shopcart_id" field should be empty
+    When I paste the "shopcart_id" field
+    And I press the "Retrieve" button
+    Then I should see the message "Success"
+    And I should see "4" in the "customer_id" field
+    And I should see "customer-id-4" in the results
+    And I should not see "customer-id-3" in the results
+    And I should not see "customer-id-2" in the results
+    And I should not see "customer-id-1" in the results
+    When I copy the "shopcart_id" field
+    And I press the "Clear" button
+    Then the "customer_id" field should be empty
+    And the "shopcart_id" field should be empty
+    When I paste the "shopcart_id" field
+    And I press the "Delete" button
+    Then I should see the message "Deleted!"
+    When I press the "Clear" button
+    Then the "customer_id" field should be empty
+    And the "shopcart_id" field should be empty
+    When I paste the "shopcart_id" field
+    And I press the "Retrieve" button
+    Then I should see the message "404 Not Found"
+
+Scenario: Read Shopcart by shopcart id (Search)
+    When I visit the "Home Page"
+    And I press the "Search" button
+    Then I should see the message "Success"
+    And I should see "customer-id-1" in the results
+    And I should see "customer-id-2" in the results
+    And I should see "customer-id-3" in the results
+    And I should not see "customer-id-4" in the results
+    When I set the "customer_id" to "4"
+    And I press the "Create" button
+    Then I should see the message "Success"
+    When I copy the "shopcart_id" field
+    And I press the "Clear" button
+    Then the "customer_id" field should be empty
+    And the "shopcart_id" field should be empty
+    When I paste the "shopcart_id" field
+    And I press the "Search" button
+    Then I should see the message "Success"
+    And I should see "4" in the "customer_id" field
+    And I should see "customer-id-4" in the results
+    And I should not see "customer-id-3" in the results
+    And I should not see "customer-id-2" in the results
+    And I should not see "customer-id-1" in the results
+    When I copy the "shopcart_id" field
+    And I press the "Clear" button
+    Then the "customer_id" field should be empty
+    And the "shopcart_id" field should be empty
+    When I paste the "shopcart_id" field
+    And I press the "Delete" button
+    Then I should see the message "Deleted!"
+    When I press the "Clear" button
+    Then the "customer_id" field should be empty
+    And the "shopcart_id" field should be empty
+    When I paste the "shopcart_id" field
+    And I press the "Search" button
+    Then I should see the message "404 Not Found"
