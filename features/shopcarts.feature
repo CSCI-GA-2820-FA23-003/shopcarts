@@ -201,3 +201,23 @@ Scenario: Read Shopcart by shopcart id (Search)
     When I paste the "shopcart_id" field
     And I press the "Search" button
     Then I should see the message "404 Not Found"
+
+Scenario: Clear shopcart items by shopcart id
+    When I visit the "Home Page"
+    And I press the "Search" button
+    Then I should see the message "Success"
+    And I should see "customer-id-1" in the results
+    And I should see "customer-id-2" in the results
+    And I should see "customer-id-3" in the results
+    And I should not see "customer-id-4" in the results
+    When I copy the "shopcart_id" field
+    And I press the "ClearCart" button
+    Then I should see the message "Shopcart has been cleared!"
+    When I paste the "shopcart_id" field
+    And I press the "Retrieve" button
+    Then I should see the message "Success"
+    And I should not see "product-id-1" in the results
+    And I should not see "product-id-2" in the results
+    And I should not see "product-id-3" in the results
+    And I should not see "product-id-4" in the results
+    

@@ -396,4 +396,29 @@ $(function () {
             flash_message("Server error!", "danger")
         });
     });
+
+    // ****************************************
+    // Clear all items in the Shopcart
+    // ****************************************
+    $("#clearcart-btn").click(function () {
+        let shopcart_id = $("#shopcart_id").val();
+        console.log(shopcart_id);
+        $("#flash_message").empty();
+
+        let ajax = $.ajax({
+            type: "PUT",
+            url: `/api/shopcarts/${shopcart_id}/clear`,
+            contentType: "application/json",
+            data: '',
+        })
+
+        ajax.done(function(res){
+            clear_form_data()
+            flash_message("Shopcart has been cleared!", "success")
+        });
+
+        ajax.fail(function(res){
+            flash_message("Server error!", "danger")
+        });
+    });
 })
