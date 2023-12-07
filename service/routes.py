@@ -249,7 +249,8 @@ def list_items(shopcart_id):
         if not any(item.product_id == int(product_id) for item in items):
             abort(
                 status.HTTP_404_NOT_FOUND,
-                f"Item with product_id '{product_id}' is not found in Shopcart with shopcart_id '{shopcart_id}'.",
+                f"Item with product_id '{product_id}' is not found "
+                + f"in Shopcart with shopcart_id '{shopcart_id}'.",
             )
         # Filter items based on the queried product_ids
         items = [item for item in items if item.product_id == int(product_id)]
@@ -292,7 +293,8 @@ def delete_items(shopcart_id):
     """
     Delete multiple products from a customer shopcart
 
-    This endpoint will delete multiple products based on the list of product IDs provided in the request body
+    This endpoint will delete multiple products based on the list of
+    product IDs provided in the request body
     """
     app.logger.info("Request to delete products for shopcart_id: %s", shopcart_id)
 
@@ -391,7 +393,8 @@ def update_items(shopcart_id, product_id):
     return make_response(
         jsonify(
             {
-                "log": f"Quantity of '{product_id}' in shopcart {shopcart_id} updated to {new_quantity}"
+                "log": f"Quantity of '{product_id}'"
+                + f" in shopcart {shopcart_id} updated to {new_quantity}"
             }
         ),
         status.HTTP_200_OK,

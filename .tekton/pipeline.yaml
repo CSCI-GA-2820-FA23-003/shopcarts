@@ -44,14 +44,34 @@ spec:
           value: 'true'
         - name: gitInitImage
           value: >-
-            gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/git-init:v0.40.2
+            registry.redhat.io/openshift-pipelines/pipelines-git-init-rhel8@sha256:1a50511583fc02a27012d17d942e247813404104ddd282d7e26f99765174392c
         - name: userHome
           value: /home/git
       taskRef:
-        kind: Task
+        kind: ClusterTask
         name: git-clone
       workspaces:
         - name: output
+          workspace: pipeline-workspace
+    - name: pylint
+      params:
+        - name: image
+          value: 'rofrano/nyu-devops-base:fa23'
+        - name: path
+          value: service
+        - name: requirements_file
+          value: requirements.txt
+        - name: args
+          value: []
+        - name: pip_conf_file
+          value: pip.conf
+      runAfter:
+        - git-clone
+      taskRef:
+        kind: Task
+        name: pylint
+      workspaces:
+        - name: source
           workspace: pipeline-workspace
   workspaces:
     - name: pipeline-workspace
