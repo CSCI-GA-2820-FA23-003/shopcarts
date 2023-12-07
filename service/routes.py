@@ -394,7 +394,7 @@ def update_items(shopcart_id, product_id):
         jsonify(
             {
                 "log": f"Quantity of '{product_id}'"
-                + f"in shopcart {shopcart_id} updated to {new_quantity}"
+                + f" in shopcart {shopcart_id} updated to {new_quantity}"
             }
         ),
         status.HTTP_200_OK,
