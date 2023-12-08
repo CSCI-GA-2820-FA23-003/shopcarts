@@ -11,6 +11,15 @@ spec:
       description: The reference (branch or ref)
       name: GIT_REF
       type: string
+    - default: shopcart
+      description: Name of the application
+      name: APP_NAME
+      type: string
+    - default: >-
+        image-registry.openshift-image-registry.svc:5000/$(context.pipelineRun.namespace)/$(params.APP_NAME):latest
+      description: The name of the image to build
+      name: IMAGE_NAME
+      type: string
   tasks:
     - name: git-clone
       params:
@@ -70,6 +79,37 @@ spec:
       taskRef:
         kind: Task
         name: pylint
+      workspaces:
+        - name: source
+          workspace: pipeline-workspace
+    - name: buildah
+      params:
+        - name: IMAGE
+          value: $(params.IMAGE_NAME)
+        - name: BUILDER_IMAGE
+          value: >-
+            registry.redhat.io/rhel8/buildah@sha256:00795fafdab9bbaa22cd29d1faa1a01e604e4884a2c935c1bf8e3d1f0ad1c084
+        - name: STORAGE_DRIVER
+          value: vfs
+        - name: DOCKERFILE
+          value: ./Dockerfile
+        - name: CONTEXT
+          value: .
+        - name: TLSVERIFY
+          value: 'true'
+        - name: FORMAT
+          value: oci
+        - name: BUILD_EXTRA_ARGS
+          value: ''
+        - name: PUSH_EXTRA_ARGS
+          value: ''
+        - name: SKIP_PUSH
+          value: 'false'
+      runAfter:
+        - pylint
+      taskRef:
+        kind: ClusterTask
+        name: buildah
       workspaces:
         - name: source
           workspace: pipeline-workspace
