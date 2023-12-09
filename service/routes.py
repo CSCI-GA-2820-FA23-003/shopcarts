@@ -411,7 +411,7 @@ def update_items(shopcart_id, product_id):
             f"For '{product_id}' in shopcart {shopcart_id}, "
             f"the quantity is updated to {new_quantity} and "
             f"the price is updated to {new_price}"
-        ) 
+        )
 
     # Update the item information and return
     cart_item.update()

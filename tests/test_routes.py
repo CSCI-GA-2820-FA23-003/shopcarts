@@ -593,7 +593,8 @@ class TestYourResourceServer(TestCase):  # pylint: disable=too-many-public-metho
         data = resp.get_json()
         self.assertEqual(
             data["log"],
-            f"The quantity of '{cart_item.product_id}' in shopcart {shop_cart.id} is updated to {new_quantity}",
+            f"The quantity of '{cart_item.product_id}' in shopcart {shop_cart.id} "
+            f"is updated to {new_quantity}",
         )
         # Verify the cart item's quantity is updated
         self.assertEqual(cart_item_for_testing.quantity, new_quantity)
@@ -663,8 +664,10 @@ class TestYourResourceServer(TestCase):  # pylint: disable=too-many-public-metho
         # Check the response message
         data = resp.get_json()
         self.assertEqual(
-            data["log"], 
-            f"For '{cart_item.product_id}' in shopcart {shop_cart.id}, the quantity is updated to {new_quantity} and the price is updated to {new_price}"
+            data["log"],
+            f"For '{cart_item.product_id}' in shopcart {shop_cart.id}, "
+            f"the quantity is updated to {new_quantity} and "
+            f"the price is updated to {new_price}"
         )
         # Verify the cart item's price is updated
         self.assertEqual(cart_item_for_testing.price, new_price)
