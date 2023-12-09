@@ -113,6 +113,22 @@ spec:
       workspaces:
         - name: source
           workspace: pipeline-workspace
+    - name: deploy-image
+      params:
+        - name: old_image_name
+          value: 'cluster-registry:32000/shopcarts:latest'
+        - name: image_name
+          value: $(params.IMAGE_NAME)
+        - name: manifest_dir
+          value: k8s
+      runAfter:
+        - buildah
+      taskRef:
+        kind: Task
+        name: deploy-image
+      workspaces:
+        - name: source
+          workspace: pipeline-workspace
   workspaces:
     - name: pipeline-workspace
       optional: false
