@@ -299,6 +299,40 @@ $(function () {
     });
 
     // ****************************************
+    // Update the quantity of a CartItem in a Shopcart
+    // ****************************************
+
+    $("#cartitem-update-count-btn").click(function () {
+        const shopcart_id = $("#cartitem_shopcart_id").val();
+        const product_id = $("#product_id").val();
+        const quantity = $("#quantity").val();
+        
+        const data = {
+            quantity,
+            shopcart_id,
+            product_id
+        };
+
+        $("#flash_message").empty();
+
+        let ajax = $.ajax({
+            type: "PUT",
+            url: `/api/shopcarts/${shopcart_id}/items/${product_id}`,
+            contentType: "application/json",
+            data: JSON.stringify(data),
+        });
+
+        ajax.done(function(res){
+            update_form_data(res);
+            flash_message("Success", "success");
+        });
+
+        ajax.fail(function(res){
+            flash_message(res.responseJSON.message, "danger");
+        });
+    });
+
+    // ****************************************
     // Delete a CartItem in a Shopcart
     // ****************************************
 

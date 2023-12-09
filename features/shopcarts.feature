@@ -70,6 +70,21 @@ Scenario: Add product to a shopcart
     When I press the "Search" button
     Then I should see "product-id-4" in the results
 
+Scenario: Update the quantity of a product in a shopcart
+    When I visit the "Home Page"
+    And I press the "Search" button
+    Then I should see the message "Success"
+    And I should see "customer-id-1" in the results
+    When I copy the "shopcart_id" field
+    And I paste the "CartItem Shopcart ID" field
+    And I set the "product_id" to "1"
+    And I set the "new_quantity" to "10"
+    And I press the "CartItem-Update-Count" button
+    Then I should see the message "Success"
+    When I press the "Search" button
+    Then I should see "product-id-1" in the results with quantity "10"
+    And I should not see "product-id-1" in the results with the old quantity "2"
+
 Scenario: Delete an Item from a Shopcart
     When I visit the "Home Page"
     And I press the "Search" button

@@ -336,12 +336,12 @@ def clear_items_in_cart(shopcart_id):
 
 
 ######################################################################
-#  UPDATE AN ITEM IN A SHOPCART
+#  UPDATE AN ITEM QUANTITY IN A SHOPCART
 ######################################################################
 @app.route("/api/shopcarts/<int:shopcart_id>/items/<int:product_id>", methods=["PUT"])
-def update_items(shopcart_id, product_id):
+def update_item_count(shopcart_id, product_id):
     """
-    Update an item in the shopcart quantitatively
+    Update an item quantity in the shopcart quantitatively
     """
     app.logger.info(
         "Request to update item quantity with shopcart_id: %s, and product_id: %s",
