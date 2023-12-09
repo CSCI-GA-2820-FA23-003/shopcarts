@@ -338,63 +338,87 @@ def clear_items_in_cart(shopcart_id):
 
 
 ######################################################################
-#  UPDATE AN ITEM IN A SHOPCART
+#  UPDATE AN ITEM IN A SHOPCART BY ID
 ######################################################################
 @app.route("/api/shopcarts/<int:shopcart_id>/items/<int:product_id>", methods=["PUT"])
 def update_items(shopcart_id, product_id):
     """
-    Update an item in the shopcart quantitatively
+    Update the quantity and/or the price of an item in the shopcart
     """
     app.logger.info(
-        "Request to update item quantity with shopcart_id: %s, and product_id: %s",
+        "Request to update item quantity and/or price with shopcart_id: %s, and product_id: %s",
         shopcart_id,
         product_id,
     )
     check_content_type("application/json")
 
-    # Check if the shopcart exists and abort if it doesn't (Same as in create_items)
+    # Check if the shopcart exists; abort and return 204 if it doesn't
     shopcart = Shopcart.find(shopcart_id)
     if not shopcart:
-        abort(
-            status.HTTP_404_NOT_FOUND,
-            f"Shopcart with id '{shopcart_id}' could not be found.",
-        )
+        # Return a 204 response if the shopcart is not found
+        return make_response("", status.HTTP_204_NO_CONTENT)
 
     # Locate the product in the shopcart
     cart_item = CartItem.find_by_shopcart_id_and_product_id(shopcart_id, product_id)
 
     if not cart_item:
-        # Return a 404 response if the product is not found in the shopcart
-        abort(
-            status.HTTP_404_NOT_FOUND,
-            f"Product '{product_id}' not found in shopcart {shopcart_id}",
-        )
+        # Return a 204 response if the product is not found in the shopcart
+        return make_response("", status.HTTP_204_NO_CONTENT)
 
-    # Get new quantity from the request JSON
+    # Get new quantity and price from the request JSON
     request_data = request.get_json()
     new_quantity = request_data.get("quantity")
+    new_price = request_data.get("price")
 
-    if new_quantity is None:
+    # If no information is provided, return 400
+    if new_quantity is None and new_price is None:
         abort(
             status.HTTP_400_BAD_REQUEST,
-            "Quantity must be a positive integer.",
+            "Either quantity or price must be provided.",
         )
 
-    if not isinstance(new_quantity, int) or new_quantity <= 0:
-        abort(
-            status.HTTP_400_BAD_REQUEST,
-            "Quantity must be a positive integer.",
+    # If only new quantity is provided,
+    if new_quantity is not None:
+        # Check if quantity is a positive integer
+        if not isinstance(new_quantity, int) or new_quantity <= 0:
+            abort(
+                status.HTTP_400_BAD_REQUEST,
+                "Quantity must be a positive integer.",
+            )
+        # Update the quantity and provide message
+        cart_item.quantity = new_quantity
+        message = (
+            f"The quantity of '{product_id}' in shopcart {shopcart_id} "
+            f"is updated to {new_quantity}"
         )
 
-    # Update the quantity
-    cart_item.quantity = new_quantity
+    # If only new price is provided,
+    if new_price is not None:
+        # Check if price is a non-negative number
+        if not isinstance(new_price, (int, float)) or new_price < 0:
+            abort(
+                status.HTTP_400_BAD_REQUEST,
+                "Price must be a non-negative number.",
+            )
+        # Update the price and provide message
+        cart_item.price = new_price
+        message = f"The price of '{product_id}' in shopcart {shopcart_id} is updated to {new_price}"
+
+    # If both new quantity and new price are provided,
+    if new_price is not None and new_quantity is not None:
+        # Combine the messages
+        message = (
+            f"For '{product_id}' in shopcart {shopcart_id}, "
+            f"the quantity is updated to {new_quantity} and "
+            f"the price is updated to {new_price}"
+        )
+
+    # Update the item information and return
     cart_item.update()
-
     return make_response(
         jsonify(
             {
-                "log": f"Quantity of '{product_id}'"
-                + f" in shopcart {shopcart_id} updated to {new_quantity}"
+                "log": message,
             }
         ),
         status.HTTP_200_OK,
