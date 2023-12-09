@@ -578,7 +578,7 @@ class TestYourResourceServer(TestCase):  # pylint: disable=too-many-public-metho
         new_quantity = 99
         # Retrieve the cart item for testing
         cart_item_for_testing = CartItem.find_by_shopcart_id_and_product_id(
-            shopcart_id=shop_cart.id, 
+            shopcart_id=shop_cart.id,
             product_id=cart_item.product_id
         )
         # Update the cart item's quantity
@@ -613,7 +613,7 @@ class TestYourResourceServer(TestCase):  # pylint: disable=too-many-public-metho
         new_price = 99
         # Retrieve the cart item for testing
         cart_item_for_testing = CartItem.find_by_shopcart_id_and_product_id(
-            shopcart_id=shop_cart.id, 
+            shopcart_id=shop_cart.id,
             product_id=cart_item.product_id
         )
         # Update the cart item's price
@@ -649,7 +649,7 @@ class TestYourResourceServer(TestCase):  # pylint: disable=too-many-public-metho
         new_price = 99
         # Retrieve the cart item for testing
         cart_item_for_testing = CartItem.find_by_shopcart_id_and_product_id(
-            shopcart_id=shop_cart.id, 
+            shopcart_id=shop_cart.id,
             product_id=cart_item.product_id
         )
         # Update the cart item's quantity and price
@@ -663,7 +663,7 @@ class TestYourResourceServer(TestCase):  # pylint: disable=too-many-public-metho
         # Check the response message
         data = resp.get_json()
         self.assertEqual(
-            data["log"],
+            data["log"], 
             f"For '{cart_item.product_id}' in shopcart {shop_cart.id}, the quantity is updated to {new_quantity} and the price is updated to {new_price}"
         )
         # Verify the cart item's price is updated
@@ -742,7 +742,7 @@ class TestYourResourceServer(TestCase):  # pylint: disable=too-many-public-metho
         data = resp.get_json()
         self.assertEqual(data["error"], "Bad Request")
         self.assertIn("Price must be a non-negative number.", data["message"])
-        
+
     def test_update_shopcart(self):
         """It should update a shopcart and assert that it has changed"""
         shopcarts = Shopcart.all()

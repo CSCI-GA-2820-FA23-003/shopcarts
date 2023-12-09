@@ -387,7 +387,10 @@ def update_items(shopcart_id, product_id):
             )
         # Update the quantity and provide message
         cart_item.quantity = new_quantity
-        message = f"The quantity of '{product_id}' in shopcart {shopcart_id} is updated to {new_quantity}"
+        message = (
+            f"The quantity of '{product_id}' in shopcart {shopcart_id} "
+            f"is updated to {new_quantity}"
+        )
 
     # If only new price is provided,
     if new_price is not None:
@@ -404,7 +407,11 @@ def update_items(shopcart_id, product_id):
     # If both new quantity and new price are provided,
     if new_price is not None and new_quantity is not None:
         # Combine the messages
-        message = f"For '{product_id}' in shopcart {shopcart_id}, the quantity is updated to {new_quantity} and the price is updated to {new_price}"
+        message = (
+            f"For '{product_id}' in shopcart {shopcart_id}, "
+            f"the quantity is updated to {new_quantity} and "
+            f"the price is updated to {new_price}"
+        ) 
 
     # Update the item information and return
     cart_item.update()
