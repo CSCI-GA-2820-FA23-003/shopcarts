@@ -220,4 +220,65 @@ Scenario: Clear shopcart items by shopcart id
     And I should not see "product-id-2" in the results
     And I should not see "product-id-3" in the results
     And I should not see "product-id-4" in the results
-    
+
+Scenario: Update the quantity of a product in a shop cart
+    When I visit the "Home Page"
+    And I press the "Search" button
+    Then I should see the message "Success"
+    And I should see "customer-id-1" in the results
+    When I copy the "shopcart_id" field
+    And I paste the "shopcart_id" field
+    And I set the "product_id" to "1"
+    And I set the "quantity" to "99"
+    And I press the "Update" button
+    Then I should see the message "Success"
+    When I press the "Search" button
+    Then I should see "product-id-1" in the results with "quantity" being "99"
+    When I set the "quantity" to "999"
+    And I press the "Update" button
+    Then I should see the message "Success"
+    When I press the "Search" button
+    Then I should see "product-id-1" in the results with "quantity" being "999"
+    And I should not see "product-id-1" in the results with "quantity" being "99"
+
+Scenario: Update the price of a product in a shop cart
+    When I visit the "Home Page"
+    And I press the "Search" button
+    Then I should see the message "Success"
+    And I should see "customer-id-1" in the results
+    When I copy the "shopcart_id" field
+    And I paste the "shopcart_id" field
+    And I set the "product_id" to "1"
+    And I set the "price" to "99"
+    And I press the "Update" button
+    Then I should see the message "Success"
+    When I press the "Search" button
+    Then I should see "product-id-1" in the results with "price" being "99"
+    When I set the "price" to "999"
+    And I press the "Update" button
+    Then I should see the message "Success"
+    When I press the "Search" button
+    Then I should see "product-id-1" in the results with "price" being "999"
+
+Scenario: Update the quantity and price of a product in a shopcart
+    When I visit the "Home Page"
+    And I press the "Search" button
+    Then I should see the message "Success"
+    And I should see "customer-id-1" in the results
+    When I copy the "shopcart_id" field
+    And I paste the "shopcart_id" field
+    And I set the "product_id" to "1"
+    And I set the "quantity" to "99"
+    And I set the "price" to "66"
+    And I press the "Update" button
+    Then I should see the message "Success"
+    When I press the "Search" button
+    Then I should see "product-id-1" in the results with "quantity" being "99"
+    And I should see "product-id-1" in the results with "price" being "66"
+    When I set the "quantity" to "999"
+    And I set the "price" to "666"
+    And I press the "Update" button
+    Then I should see the message "Success"
+    When I press the "Search" button
+    Then I should see "product-id-1" in the results with "quantity" being "999"
+    And I should see "product-id-1" in the results with "price" being "666"
