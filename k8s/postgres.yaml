@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: postgres
-          image: postgres:alpine
+          image: postgres:15-alpine
           env:
             - name: POSTGRES_PASSWORD
               valueFrom:
@@ -28,7 +28,7 @@ spec:
               protocol: TCP
           volumeMounts:
           - name: postgres-storage
-            mountPath: /data
+            mountPath: /var/lib/postgresql
           resources:
             limits:
               cpu: "0.50"
@@ -48,11 +48,11 @@ metadata:
   name: postgres-data
 spec:
   accessModes:
-    - ReadWriteMany
+    - ReadWriteOnce
   resources:
     requests:
       storage: 1Gi
-  storageClassName: ""
+  # storageClassName: ""
 
 ---
 apiVersion: v1
