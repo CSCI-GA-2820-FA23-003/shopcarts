@@ -129,6 +129,22 @@ spec:
       workspaces:
         - name: source
           workspace: pipeline-workspace
+    - name: green
+      runAfter:
+        - git-clone
+      taskRef:
+        kind: Task
+        name: green
+      params:
+        - name: ARGS
+          value: '-vvv --processes=1 --run-coverage --minimum-coverage=95'
+        - name: SECRET_NAME
+          value: postgres-creds
+        - name: SECRET_KEY
+          value: database_uri
+      workspaces:
+        - name: source
+          workspace: pipeline-workspace
   workspaces:
     - name: pipeline-workspace
       optional: false
