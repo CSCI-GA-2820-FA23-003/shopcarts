@@ -7,7 +7,7 @@ import logging
 from abc import abstractmethod
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.exc import IntegrityError, DataError
-from psycopg2.errors import UniqueViolation
+# from psycopg2.errors import UniqueViolation
 
 logger = logging.getLogger("flask.app")
 
@@ -56,11 +56,11 @@ class PersistentBase:
             db.session.add(self)
             db.session.commit()
         except (IntegrityError, DataError) as error:
-            if isinstance(error.orig, UniqueViolation):
-                # Capture duplicate data error
-                raise DataConflictError(
-                    "Duplicate Shopcart: Shopcart for customer already exists"
-                ) from error
+            # if isinstance(error.orig, UniqueViolation):
+            #     # Capture duplicate data error
+            #     raise DataConflictError(
+            #         "Duplicate Shopcart: Shopcart for customer already exists"
+            #     ) from error
 
             raise DataValidationError("Invalid Shopcart: " + error.args[0]) from error
 
