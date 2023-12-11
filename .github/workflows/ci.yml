@@ -58,7 +58,7 @@ jobs:
           export FLASK_APP=service:app
           green -vvv --processes=1 --run-coverage --termcolor --minimum-coverage=95
         env:
-          DATABASE_URI: "postgresql://postgres:postgres@postgres:5432/testdb"
+          DATABASE_URI: "postgresql+psycopg://postgres:postgres@postgres:5432/testdb"
 
       # Uncomment the following 2 lines during hands-on lab
       

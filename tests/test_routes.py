@@ -14,7 +14,7 @@ from service.models import db, Shopcart, CartItem, init_db
 from service.common import status  # HTTP Status Codes
 
 # DATABASE_URI = os.getenv(
-#     "DATABASE_URI", "postgresql://postgres:postgres@localhost:5432/postgres"
+#     "DATABASE_URI", "postgresql+psycopg://postgres:postgres@localhost:5432/postgres"
 # )
 
 BASE_URL = "/api/shopcarts"
