@@ -199,7 +199,7 @@ class CartItem(db.Model, PersistentBase):
             product_id,
         )
         return cls.query.filter_by(
-            shopcart_id=shopcart_id, product_id=product_id
+            shopcart_id=int(shopcart_id), product_id=int(product_id)
         ).first()
 
 
