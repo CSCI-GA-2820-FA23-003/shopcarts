@@ -150,6 +150,15 @@ spec:
       workspaces:
         - name: source
           workspace: pipeline-workspace
+    - name: run-behave-tests
+      runAfter:
+      - deploy-image # Ensure this runs after the deployment
+      taskRef:
+        kind: Task
+        name: behave-task
+      workspaces:
+      - name: source
+        workspace: pipeline-workspace
   workspaces:
     - name: pipeline-workspace
       optional: false
