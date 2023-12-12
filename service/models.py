@@ -7,7 +7,7 @@ import logging
 from abc import abstractmethod
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.exc import IntegrityError, DataError
-from psycopg2.errors import UniqueViolation
+from psycopg.errors import UniqueViolation
 
 logger = logging.getLogger("flask.app")
 
@@ -199,7 +199,7 @@ class CartItem(db.Model, PersistentBase):
             product_id,
         )
         return cls.query.filter_by(
-            shopcart_id=shopcart_id, product_id=product_id
+            shopcart_id=int(shopcart_id), product_id=int(product_id)
         ).first()
 
 
@@ -273,7 +273,7 @@ class Shopcart(db.Model, PersistentBase):
             customer_id (Integer): the id of the customer you want to match
         """
         logger.info("Processing customer id query for %s ...", customer_id)
-        return cls.query.filter(cls.customer_id == customer_id)
+        return cls.query.filter(cls.customer_id == int(customer_id))
 
     @classmethod
     def find_shopcarts_with_product_id(cls, product_id):
@@ -287,7 +287,7 @@ class Shopcart(db.Model, PersistentBase):
             "Processing query for shopcarts containing product %s ...", product_id
         )
         # Query the CartItem table for all items with the given product_id
-        cart_items = CartItem.query.filter(CartItem.product_id == product_id).all()
+        cart_items = CartItem.query.filter(CartItem.product_id == int(product_id)).all()
 
         # Extract shopcart_ids from the CartItems
         shopcart_ids = [item.shopcart_id for item in cart_items]
