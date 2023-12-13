@@ -127,6 +127,7 @@ delete_item                    DELETE   /api/shopcarts/<int:shopcart_id>/items/<
 delete_items                   DELETE   /api/shopcarts/<int:shopcart_id>/items              
 ```
 
+🚀
 ## License
 
 Copyright (c) John Rofrano. All rights reserved.
