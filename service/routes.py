@@ -482,7 +482,7 @@ class ItemResource(Resource):
     @api.response(204, "Item not found in the shopcart")
     @api.response(400, "The posted Item data was not valid")
     @api.expect(cartItem_model)
-    @api.marshal_with(shopcart_model)
+    @api.marshal_with(cartItem_model)
     def put(self, shopcart_id, product_id):
         """
         Update the quantity and/or the price of an item in the shopcart
@@ -508,10 +508,9 @@ class ItemResource(Resource):
             return "", status.HTTP_204_NO_CONTENT
 
         # Parse the request data using the defined parser
-        args = update_item_args.parse_args()
-        new_quantity = args.get("new_quantity")
-        new_price = args.get("new_price")
-
+        data = api.payload
+        new_quantity = data.get("quantity", None)
+        new_price = data.get("price", None)
         # If no information is provided, return 400
         if new_quantity is None and new_price is None:
             abort(
@@ -520,35 +519,21 @@ class ItemResource(Resource):
             )
 
         # If only new quantity is provided,
-        if new_quantity is not None:
+        if new_quantity is not None and new_quantity != "":
             # Update the quantity and provide message
             new_quantity = validate_quantity(new_quantity)
             cart_item.quantity = new_quantity
-            message = (
-                f"The quantity of '{product_id}' in shopcart {shopcart_id} "
-                f"is updated to {new_quantity}"
-            )
 
         # If only new price is provided,
-        if new_price is not None:
+        if new_price is not None and new_price != "":
             # Update the price and provide message
             new_price = validate_price(new_price)
             cart_item.price = new_price
-            message = f"The price of '{product_id}' in shopcart {shopcart_id} is updated to {new_price}"
-
-        # If both new quantity and new price are provided,
-        if new_quantity is not None and new_price is not None:
-            # Combine the messages
-            message = (
-                f"For '{product_id}' in shopcart {shopcart_id}, "
-                f"the quantity is updated to {new_quantity} and "
-                f"the price is updated to {new_price}"
-            )
 
         # Update the item information and return
         cart_item.update()
         return (
-            {"log": message},
+            cart_item.serialize(),
             status.HTTP_200_OK,
         )
 

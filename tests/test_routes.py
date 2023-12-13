@@ -576,12 +576,8 @@ class TestYourResourceServer(TestCase):  # pylint: disable=too-many-public-metho
         self.assertEqual(resp.status_code, 201)
         # Set new quantity
         new_quantity = 99
-        # Retrieve the cart item for testing
-        cart_item_for_testing = CartItem.find_by_shopcart_id_and_product_id(
-            shopcart_id=shop_cart.id, product_id=cart_item.product_id
-        )
         # Update the cart item's quantity
-        update_data = {"new_quantity": str(new_quantity), "new_price": ""}
+        update_data = {"quantity": str(new_quantity), "price": ""}
         resp = self.client.put(
             f"/api/shopcarts/{shop_cart.id}/items/{cart_item.product_id}",
             json=update_data,
@@ -591,12 +587,8 @@ class TestYourResourceServer(TestCase):  # pylint: disable=too-many-public-metho
         # Check the response message
         data = resp.get_json()
         self.assertEqual(
-            data["log"],
-            f"The quantity of '{cart_item.product_id}' in shopcart {shop_cart.id} "
-            f"is updated to {new_quantity}",
+            data["quantity"], new_quantity, "Failed to update item quantity"
         )
-        # Verify the cart item's quantity is updated
-        self.assertEqual(cart_item_for_testing.quantity, new_quantity)
 
     def test_update_item_price(self):
         """It should successfully update the price of a cart item in a shopcart"""
@@ -611,12 +603,8 @@ class TestYourResourceServer(TestCase):  # pylint: disable=too-many-public-metho
         self.assertEqual(resp.status_code, 201)
         # Set new price
         new_price = 99.0
-        # Retrieve the cart item for testing
-        cart_item_for_testing = CartItem.find_by_shopcart_id_and_product_id(
-            shopcart_id=shop_cart.id, product_id=cart_item.product_id
-        )
         # Update the cart item's price
-        update_data = {"new_price": str(new_price), "new_quantity": ""}
+        update_data = {"price": str(new_price), "quantity": ""}
         resp = self.client.put(
             f"/api/shopcarts/{shop_cart.id}/items/{cart_item.product_id}",
             json=update_data,
@@ -625,12 +613,7 @@ class TestYourResourceServer(TestCase):  # pylint: disable=too-many-public-metho
         self.assertEqual(resp.status_code, 200)
         # Check the response message
         data = resp.get_json()
-        self.assertEqual(
-            data["log"],
-            f"The price of '{cart_item.product_id}' in shopcart {shop_cart.id} is updated to {new_price}",
-        )
-        # Verify the cart item's price is updated
-        self.assertEqual(cart_item_for_testing.price, new_price)
+        self.assertEqual(data["price"], new_price, "Failed to update item price")
 
     def test_update_item_quantity_and_price(self):
         """It should successfully update the quantity and price of a cart item in a shopcart"""
@@ -646,12 +629,8 @@ class TestYourResourceServer(TestCase):  # pylint: disable=too-many-public-metho
         # Set new quantity and price
         new_quantity = 66
         new_price = 99.0
-        # Retrieve the cart item for testing
-        cart_item_for_testing = CartItem.find_by_shopcart_id_and_product_id(
-            shopcart_id=shop_cart.id, product_id=cart_item.product_id
-        )
         # Update the cart item's quantity and price
-        update_data = {"new_quantity": str(new_quantity), "new_price": str(new_price)}
+        update_data = {"quantity": str(new_quantity), "price": str(new_price)}
         resp = self.client.put(
             f"/api/shopcarts/{shop_cart.id}/items/{cart_item.product_id}",
             json=update_data,
@@ -660,14 +639,10 @@ class TestYourResourceServer(TestCase):  # pylint: disable=too-many-public-metho
         self.assertEqual(resp.status_code, 200)
         # Check the response message
         data = resp.get_json()
+        self.assertEqual(data["price"], new_price, "Failed to update item price")
         self.assertEqual(
-            data["log"],
-            f"For '{cart_item.product_id}' in shopcart {shop_cart.id}, "
-            f"the quantity is updated to {new_quantity} and "
-            f"the price is updated to {new_price}",
+            data["quantity"], new_quantity, "Failed to update item quantity"
         )
-        # Verify the cart item's price is updated
-        self.assertEqual(cart_item_for_testing.price, new_price)
 
     def test_update_item_quantity_negative_integer(self):
         """It should return a 400 BAD REQUEST response for a negative integer quantity"""
