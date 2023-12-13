@@ -471,7 +471,7 @@ def check_content_type(media_type):
 
 
 def validate_quantity(new_quantity):
-    # Check if quantity is a positive integer
+    """Check if quantity is a positive integer"""
     try:
         new_quantity = int(new_quantity)
         if new_quantity <= 0:
@@ -485,7 +485,7 @@ def validate_quantity(new_quantity):
 
 
 def validate_price(new_price):
-    # Check if price is a non-negative number
+    """Check if price is a non-negative number"""
     try:
         new_price = float(new_price)
         if new_price < 0:
