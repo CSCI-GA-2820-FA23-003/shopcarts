@@ -161,7 +161,6 @@ class ShopcartCollection(Resource):
             shopcarts = Shopcart.all()
 
         results = [shopcart.serialize() for shopcart in shopcarts]
-        app.logger.info(results)
         app.logger.info("Return %d shopcart in total.", len(results))
         return results, status.HTTP_200_OK
 

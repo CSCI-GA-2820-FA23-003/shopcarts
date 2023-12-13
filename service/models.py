@@ -56,6 +56,7 @@ class PersistentBase:
             db.session.add(self)
             db.session.commit()
         except (IntegrityError, DataError) as error:
+            db.session.rollback()
             if isinstance(error.orig, UniqueViolation):
                 # Capture duplicate data error
                 raise DataConflictError(
