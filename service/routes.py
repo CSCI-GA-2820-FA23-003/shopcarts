@@ -339,7 +339,8 @@ class ItemCollection(Resource):
     @api.marshal_list_with(cartItem_model)
     def get(self, shopcart_id):
         """
-        If there is a product_id query parameter, return the queried items for the specified shopcart.
+        If there is a product_id query parameter,
+        return the queried items for the specified shopcart.
         Else return all items for the specified shopcart.
 
         return: a list of items in the specified shopcart
