@@ -379,18 +379,8 @@ def update_items(shopcart_id, product_id):
 
     # If only new quantity is provided,
     if len(new_quantity) != 0:
-        # Check if quantity is a positive integer
-        try:
-            new_quantity = int(new_quantity)
-            if new_quantity <= 0:
-                raise ValueError
-        except ValueError:
-            abort(
-                status.HTTP_400_BAD_REQUEST,
-                "Quantity must be a positive integer.",
-            )
-
         # Update the quantity and provide message
+        new_quantity = validate_quantity(new_quantity)
         cart_item.quantity = new_quantity
         message = (
             f"The quantity of '{product_id}' in shopcart {shopcart_id} "
@@ -399,17 +389,8 @@ def update_items(shopcart_id, product_id):
 
     # If only new price is provided,
     if len(new_price) != 0:
-        # Check if price is a non-negative number
-        try:
-            new_price = float(new_price)
-            if new_price < 0:
-                raise ValueError
-        except ValueError:
-            abort(
-                status.HTTP_400_BAD_REQUEST,
-                "Price must be a non-negative number.",
-            )
         # Update the price and provide message
+        new_price = validate_price(new_price)
         cart_item.price = new_price
         message = f"The price of '{product_id}' in shopcart {shopcart_id} is updated to {new_price}"
 
@@ -487,3 +468,31 @@ def check_content_type(media_type):
         status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
         f"Content-Type must be {media_type}",
     )
+
+
+def validate_quantity(new_quantity):
+    # Check if quantity is a positive integer
+    try:
+        new_quantity = int(new_quantity)
+        if new_quantity <= 0:
+            raise ValueError
+    except ValueError:
+        abort(
+            status.HTTP_400_BAD_REQUEST,
+            "Quantity must be a positive integer.",
+        )
+    return new_quantity
+
+
+def validate_price(new_price):
+    # Check if price is a non-negative number
+    try:
+        new_price = float(new_price)
+        if new_price < 0:
+            raise ValueError
+    except ValueError:
+        abort(
+            status.HTTP_400_BAD_REQUEST,
+            "Price must be a non-negative number.",
+        )
+    return new_price
