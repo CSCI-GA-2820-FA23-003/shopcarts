@@ -75,14 +75,6 @@ cartItem_args.add_argument(
     help="Filter items by product_id",
 )
 
-update_item_args = reqparse.RequestParser()
-update_item_args.add_argument(
-    "new_quantity", type=int, required=False, help="New quantity for the item"
-)
-update_item_args.add_argument(
-    "new_price", type=float, required=False, help="New price for the item"
-)
-
 
 ############################################################
 # Health Endpoint
