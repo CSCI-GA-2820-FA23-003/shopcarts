@@ -578,11 +578,10 @@ class TestYourResourceServer(TestCase):  # pylint: disable=too-many-public-metho
         new_quantity = 99
         # Retrieve the cart item for testing
         cart_item_for_testing = CartItem.find_by_shopcart_id_and_product_id(
-            shopcart_id=shop_cart.id,
-            product_id=cart_item.product_id
+            shopcart_id=shop_cart.id, product_id=cart_item.product_id
         )
         # Update the cart item's quantity
-        update_data = {"quantity": new_quantity}
+        update_data = {"new_quantity": str(new_quantity), "new_price": ""}
         resp = self.client.put(
             f"/api/shopcarts/{shop_cart.id}/items/{cart_item.product_id}",
             json=update_data,
@@ -611,14 +610,13 @@ class TestYourResourceServer(TestCase):  # pylint: disable=too-many-public-metho
         )
         self.assertEqual(resp.status_code, 201)
         # Set new price
-        new_price = 99
+        new_price = 99.0
         # Retrieve the cart item for testing
         cart_item_for_testing = CartItem.find_by_shopcart_id_and_product_id(
-            shopcart_id=shop_cart.id,
-            product_id=cart_item.product_id
+            shopcart_id=shop_cart.id, product_id=cart_item.product_id
         )
         # Update the cart item's price
-        update_data = {"price": new_price}
+        update_data = {"new_price": str(new_price), "new_quantity": ""}
         resp = self.client.put(
             f"/api/shopcarts/{shop_cart.id}/items/{cart_item.product_id}",
             json=update_data,
@@ -647,14 +645,13 @@ class TestYourResourceServer(TestCase):  # pylint: disable=too-many-public-metho
         self.assertEqual(resp.status_code, 201)
         # Set new quantity and price
         new_quantity = 66
-        new_price = 99
+        new_price = 99.0
         # Retrieve the cart item for testing
         cart_item_for_testing = CartItem.find_by_shopcart_id_and_product_id(
-            shopcart_id=shop_cart.id,
-            product_id=cart_item.product_id
+            shopcart_id=shop_cart.id, product_id=cart_item.product_id
         )
         # Update the cart item's quantity and price
-        update_data = {"quantity": new_quantity, "price": new_price}
+        update_data = {"new_quantity": str(new_quantity), "new_price": str(new_price)}
         resp = self.client.put(
             f"/api/shopcarts/{shop_cart.id}/items/{cart_item.product_id}",
             json=update_data,
@@ -667,7 +664,7 @@ class TestYourResourceServer(TestCase):  # pylint: disable=too-many-public-metho
             data["log"],
             f"For '{cart_item.product_id}' in shopcart {shop_cart.id}, "
             f"the quantity is updated to {new_quantity} and "
-            f"the price is updated to {new_price}"
+            f"the price is updated to {new_price}",
         )
         # Verify the cart item's price is updated
         self.assertEqual(cart_item_for_testing.price, new_price)
@@ -685,7 +682,7 @@ class TestYourResourceServer(TestCase):  # pylint: disable=too-many-public-metho
         self.assertEqual(resp.status_code, 201)
         # Update the quantity with a negative integer
         negative_quantity = -1
-        update_data = {"quantity": negative_quantity}
+        update_data = {"new_quantity": str(negative_quantity), "new_price": ""}
         resp = self.client.put(
             f"/api/shopcarts/{shop_cart.id}/items/{cart_item.product_id}",
             json=update_data,
@@ -709,7 +706,7 @@ class TestYourResourceServer(TestCase):  # pylint: disable=too-many-public-metho
         self.assertEqual(resp.status_code, 201)
         # Update the quantity with a decimal value
         decimal_quantity = 0.5
-        update_data = {"quantity": decimal_quantity}
+        update_data = {"new_quantity": str(decimal_quantity), "new_price": ""}
         resp = self.client.put(
             f"{BASE_URL}/{shop_cart.id}/items/{cart_item.product_id}",
             json=update_data,
@@ -734,7 +731,7 @@ class TestYourResourceServer(TestCase):  # pylint: disable=too-many-public-metho
         self.assertEqual(resp.status_code, 201)
         # Update the price with a negative number
         negative_price = -5
-        update_data = {"price": negative_price}
+        update_data = {"new_price": str(negative_price), "new_quantity": ""}
         resp = self.client.put(
             f"/api/shopcarts/{shop_cart.id}/items/{cart_item.product_id}",
             json=update_data,
