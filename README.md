@@ -64,10 +64,10 @@ make cluster
 
 #### Step 2: Build image and push to local registry
 ```
-docker build -t shopcarts:1.0 .
-docker tag shopcarts:1.0 cluster-registry:32000/shopcarts:1.0
+docker build -t shopcarts:latest .
+docker tag shopcarts:latest cluster-registry:32000/shopcarts:latest
 sudo sh -c 'echo "127.0.0.1 cluster-registry" >> /etc/hosts'
-docker push cluster-registry:32000/shopcarts:1.0
+docker push cluster-registry:32000/shopcarts:latest
 ```
 
 #### Step 3: Deploy the K8 cluster
