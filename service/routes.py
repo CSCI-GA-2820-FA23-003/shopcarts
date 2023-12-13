@@ -632,8 +632,5 @@ def validate_price(new_price):
         if new_price < 0:
             raise ValueError
     except ValueError:
-        abort(
-            status.HTTP_400_BAD_REQUEST,
-            "Price must be a non-negative number.",
-        )
+        abort(status.HTTP_400_BAD_REQUEST, "Price must be a non-negative number.")
     return new_price
