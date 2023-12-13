@@ -382,16 +382,14 @@ def update_items(shopcart_id, product_id):
         # Check if quantity is a positive integer
         try:
             new_quantity = int(new_quantity)
+            if new_quantity <= 0:
+                raise ValueError
         except ValueError:
             abort(
                 status.HTTP_400_BAD_REQUEST,
                 "Quantity must be a positive integer.",
             )
-        if new_quantity <= 0:
-            abort(
-                status.HTTP_400_BAD_REQUEST,
-                "Quantity must be a positive integer.",
-            )
+
         # Update the quantity and provide message
         cart_item.quantity = new_quantity
         message = (
@@ -404,12 +402,9 @@ def update_items(shopcart_id, product_id):
         # Check if price is a non-negative number
         try:
             new_price = float(new_price)
+            if new_price < 0:
+                raise ValueError
         except ValueError:
-            abort(
-                status.HTTP_400_BAD_REQUEST,
-                "Price must be a non-negative number.",
-            )
-        if new_price < 0:
             abort(
                 status.HTTP_400_BAD_REQUEST,
                 "Price must be a non-negative number.",
