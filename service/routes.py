@@ -367,25 +367,20 @@ def update_items(shopcart_id, product_id):
 
     # Get new quantity and price from the request JSON
     request_data = request.get_json()
-    new_quantity = request_data.get("quantity")
-    new_price = request_data.get("price")
+    new_quantity = request_data.get("new_quantity")
+    new_price = request_data.get("new_price")
 
     # If no information is provided, return 400
-    if new_quantity is None and new_price is None:
+    if len(new_quantity) == 0 and len(new_price) == 0:
         abort(
             status.HTTP_400_BAD_REQUEST,
             "Either quantity or price must be provided.",
         )
 
     # If only new quantity is provided,
-    if new_quantity is not None:
-        # Check if quantity is a positive integer
-        if not isinstance(new_quantity, int) or new_quantity <= 0:
-            abort(
-                status.HTTP_400_BAD_REQUEST,
-                "Quantity must be a positive integer.",
-            )
+    if len(new_quantity) != 0:
         # Update the quantity and provide message
+        new_quantity = validate_quantity(new_quantity)
         cart_item.quantity = new_quantity
         message = (
             f"The quantity of '{product_id}' in shopcart {shopcart_id} "
@@ -393,19 +388,14 @@ def update_items(shopcart_id, product_id):
         )
 
     # If only new price is provided,
-    if new_price is not None:
-        # Check if price is a non-negative number
-        if not isinstance(new_price, (int, float)) or new_price < 0:
-            abort(
-                status.HTTP_400_BAD_REQUEST,
-                "Price must be a non-negative number.",
-            )
+    if len(new_price) != 0:
         # Update the price and provide message
+        new_price = validate_price(new_price)
         cart_item.price = new_price
         message = f"The price of '{product_id}' in shopcart {shopcart_id} is updated to {new_price}"
 
     # If both new quantity and new price are provided,
-    if new_price is not None and new_quantity is not None:
+    if not isinstance(new_price, str) and not isinstance(new_quantity, str):
         # Combine the messages
         message = (
             f"For '{product_id}' in shopcart {shopcart_id}, "
@@ -478,3 +468,31 @@ def check_content_type(media_type):
         status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
         f"Content-Type must be {media_type}",
     )
+
+
+def validate_quantity(new_quantity):
+    """Check if quantity is a positive integer"""
+    try:
+        new_quantity = int(new_quantity)
+        if new_quantity <= 0:
+            raise ValueError
+    except ValueError:
+        abort(
+            status.HTTP_400_BAD_REQUEST,
+            "Quantity must be a positive integer.",
+        )
+    return new_quantity
+
+
+def validate_price(new_price):
+    """Check if price is a non-negative number"""
+    try:
+        new_price = float(new_price)
+        if new_price < 0:
+            raise ValueError
+    except ValueError:
+        abort(
+            status.HTTP_400_BAD_REQUEST,
+            "Price must be a non-negative number.",
+        )
+    return new_price

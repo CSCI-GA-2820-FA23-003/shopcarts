@@ -372,8 +372,8 @@ $(function () {
     $("#cartitem-update-btn").click(function () {
         const shopcart_id = $("#cartitem_shopcart_id").val();
         const product_id = $("#product_id").val();
-        const new_quantity = $("#new_quantity").val();
-        const new_price = $("#new_price").val();
+        const new_quantity = $("#quantity").val();
+        const new_price = $("#price").val();
     
         const data = {
             product_id,
