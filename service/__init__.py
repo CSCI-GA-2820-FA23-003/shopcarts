@@ -6,6 +6,7 @@ and SQL database
 """
 import sys
 from flask import Flask
+from flask_restx import Api
 from service import config
 from service.common import log_handlers
 
@@ -13,9 +14,22 @@ from service.common import log_handlers
 app = Flask(__name__)
 app.config.from_object(config)
 
+# Configure Swagger
+api = Api(
+    app,
+    version="1.0.0",
+    title="Shopcart REST API Service",
+    description="This REST API service provides endpoints for managing shopcarts.",
+    default="shopcarts",
+    default_label="shopcart operations",
+    doc="/apidocs",
+    prefix="/api",
+)
+
 # Dependencies require we import the routes AFTER the Flask app is created
 # pylint: disable=wrong-import-position, wrong-import-order, cyclic-import
 from service import routes, models  # noqa: E402, E261
+
 # pylint: disable=wrong-import-position
 from service.common import error_handlers, cli_commands  # noqa: F401, E402
 
@@ -23,7 +37,7 @@ from service.common import error_handlers, cli_commands  # noqa: F401, E402
 log_handlers.init_logging(app, "gunicorn.error")
 
 app.logger.info(70 * "*")
-app.logger.info("  S E R V I C E   R U N N I N G  ".center(70, "*"))
+app.logger.info("  S H O P C A R T   S E R V I C E   R U N N I N G  ".center(70, "*"))
 app.logger.info(70 * "*")
 
 try:

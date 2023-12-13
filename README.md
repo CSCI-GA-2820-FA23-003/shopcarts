@@ -123,7 +123,7 @@ create_cart_items              POST     /api/shopcarts/<int:shopcart_id>/items
 get_cart_item                  GET      /api/shopcarts/<int:shopcart_id>/items/<int:product_id>
 update_cart_items              PUT      /api/shopcarts/<int:shopcart_id>/items/<int:product_id>
 clear_items_in_cart            PUT      /api/shopcarts/<int:shopcart_id>/items/clear
-delete_item                    DELETE   /api/shopcarts/<int:shopcart_id>/items/<int:item_id>   
+delete_item                    DELETE   /api/shopcarts/<int:shopcart_id>/items/<int:product_id>   
 delete_items                   DELETE   /api/shopcarts/<int:shopcart_id>/items              
 ```
 
