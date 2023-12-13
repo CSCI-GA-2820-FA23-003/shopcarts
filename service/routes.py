@@ -501,8 +501,8 @@ class ItemResource(Resource):
 
         # Parse the request data using the defined parser
         data = api.payload
-        new_quantity = data.get("quantity", None)
-        new_price = data.get("price", None)
+        new_quantity = data.get("new_quantity", None)
+        new_price = data.get("new_price", None)
         # If no information is provided, return 400
         if new_quantity is None and new_price is None:
             abort(

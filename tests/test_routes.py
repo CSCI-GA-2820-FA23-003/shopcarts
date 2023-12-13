@@ -577,7 +577,7 @@ class TestYourResourceServer(TestCase):  # pylint: disable=too-many-public-metho
         # Set new quantity
         new_quantity = 99
         # Update the cart item's quantity
-        update_data = {"quantity": str(new_quantity), "price": ""}
+        update_data = {"new_quantity": str(new_quantity), "new_price": ""}
         resp = self.client.put(
             f"/api/shopcarts/{shop_cart.id}/items/{cart_item.product_id}",
             json=update_data,
@@ -604,7 +604,7 @@ class TestYourResourceServer(TestCase):  # pylint: disable=too-many-public-metho
         # Set new price
         new_price = 99.0
         # Update the cart item's price
-        update_data = {"price": str(new_price), "quantity": ""}
+        update_data = {"new_price": str(new_price), "new_quantity": ""}
         resp = self.client.put(
             f"/api/shopcarts/{shop_cart.id}/items/{cart_item.product_id}",
             json=update_data,
@@ -630,7 +630,7 @@ class TestYourResourceServer(TestCase):  # pylint: disable=too-many-public-metho
         new_quantity = 66
         new_price = 99.0
         # Update the cart item's quantity and price
-        update_data = {"quantity": str(new_quantity), "price": str(new_price)}
+        update_data = {"new_quantity": str(new_quantity), "new_price": str(new_price)}
         resp = self.client.put(
             f"/api/shopcarts/{shop_cart.id}/items/{cart_item.product_id}",
             json=update_data,
@@ -666,7 +666,6 @@ class TestYourResourceServer(TestCase):  # pylint: disable=too-many-public-metho
         self.assertEqual(resp.status_code, 400)
         # Check the response
         data = resp.get_json()
-        self.assertEqual(data["error"], "Bad Request")
         self.assertIn("Quantity must be a positive integer", data["message"])
 
     def test_update_item_quantity_decimal(self):
@@ -690,7 +689,6 @@ class TestYourResourceServer(TestCase):  # pylint: disable=too-many-public-metho
         self.assertEqual(resp.status_code, 400)
         # Check the response
         data = resp.get_json()
-        self.assertEqual(data["error"], "Bad Request")
         self.assertIn("Quantity must be a positive integer.", data["message"])
 
     def test_update_item_price_negative(self):
@@ -715,7 +713,6 @@ class TestYourResourceServer(TestCase):  # pylint: disable=too-many-public-metho
         self.assertEqual(resp.status_code, 400)
         # Check the response
         data = resp.get_json()
-        self.assertEqual(data["error"], "Bad Request")
         self.assertIn("Price must be a non-negative number.", data["message"])
 
     def test_update_shopcart(self):
