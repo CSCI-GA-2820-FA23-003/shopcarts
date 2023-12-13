@@ -367,20 +367,27 @@ def update_items(shopcart_id, product_id):
 
     # Get new quantity and price from the request JSON
     request_data = request.get_json()
-    new_quantity = request_data.get("quantity")
-    new_price = request_data.get("price")
+    new_quantity = request_data.get("new_quantity")
+    new_price = request_data.get("new_price")
 
     # If no information is provided, return 400
-    if new_quantity is None and new_price is None:
+    if len(new_quantity) == 0 and len(new_price) == 0:
         abort(
             status.HTTP_400_BAD_REQUEST,
             "Either quantity or price must be provided.",
         )
 
     # If only new quantity is provided,
-    if new_quantity is not None:
+    if len(new_quantity) != 0:
         # Check if quantity is a positive integer
-        if not isinstance(new_quantity, int) or new_quantity <= 0:
+        try:
+            new_quantity = int(new_quantity)
+        except ValueError:
+            abort(
+                status.HTTP_400_BAD_REQUEST,
+                "Quantity must be a positive integer.",
+            )
+        if new_quantity <= 0:
             abort(
                 status.HTTP_400_BAD_REQUEST,
                 "Quantity must be a positive integer.",
@@ -393,9 +400,16 @@ def update_items(shopcart_id, product_id):
         )
 
     # If only new price is provided,
-    if new_price is not None:
+    if len(new_price) != 0:
         # Check if price is a non-negative number
-        if not isinstance(new_price, (int, float)) or new_price < 0:
+        try:
+            new_price = float(new_price)
+        except ValueError:
+            abort(
+                status.HTTP_400_BAD_REQUEST,
+                "Price must be a non-negative number.",
+            )
+        if new_price < 0:
             abort(
                 status.HTTP_400_BAD_REQUEST,
                 "Price must be a non-negative number.",
@@ -405,7 +419,7 @@ def update_items(shopcart_id, product_id):
         message = f"The price of '{product_id}' in shopcart {shopcart_id} is updated to {new_price}"
 
     # If both new quantity and new price are provided,
-    if new_price is not None and new_quantity is not None:
+    if not isinstance(new_price, str) and not isinstance(new_quantity, str):
         # Combine the messages
         message = (
             f"For '{product_id}' in shopcart {shopcart_id}, "
