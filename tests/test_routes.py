@@ -8,6 +8,7 @@ Test cases can be run with the following:
 import random
 import logging
 from unittest import TestCase
+from urllib.parse import quote_plus
 from tests.factories import ShopcartFactory, CartItemFactory
 from service import app
 from service.models import db, Shopcart, CartItem, init_db

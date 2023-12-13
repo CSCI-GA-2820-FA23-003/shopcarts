@@ -273,7 +273,7 @@ class Shopcart(db.Model, PersistentBase):
             customer_id (Integer): the id of the customer you want to match
         """
         logger.info("Processing customer id query for %s ...", customer_id)
-        return cls.query.filter(cls.customer_id == customer_id)
+        return cls.query.filter(cls.customer_id == customer_id).all()
 
     @classmethod
     def find_shopcarts_with_product_id(cls, product_id):
