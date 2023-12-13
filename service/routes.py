@@ -193,7 +193,7 @@ class ShopcartResource(Resource):
         if not shopcart:
             abort(
                 status.HTTP_404_NOT_FOUND,
-                f"Shopcart with id '{shopcart_id}' could not be found.",
+                f"404 Not Found. Shopcart with id '{shopcart_id}' could not be found.",
             )
 
         return shopcart.serialize(), status.HTTP_200_OK
