@@ -2,7 +2,7 @@
 Shopcart API Service with Swagger
 """
 
-from flask import jsonify, request, url_for, make_response, abort
+from flask import jsonify, request, abort
 from flask_restx import Resource, fields, reqparse
 from service.models import CartItem, Shopcart
 from service.common import status  # HTTP Status Codes
@@ -52,11 +52,11 @@ shopcart_model = api.inherit(
 
 shopcart_args = reqparse.RequestParser()
 shopcart_args.add_argument(
-    "shopcart_id",
+    "product_id",
     type=int,
     location="args",
     required=False,
-    help="List Shopcarts by shopcart id",
+    help="List Shopcarts by product id",
 )
 shopcart_args.add_argument(
     "customer_id",
@@ -105,7 +105,7 @@ def index():
 ######################################################################
 #  PATH: /api/shopcarts
 ######################################################################
-@api.route("/api/shopcarts", strict_slashes=False)
+@api.route("/shopcarts", strict_slashes=False)
 class ShopcartCollection(Resource):
     """
     Allows the manipulation of multiple shopcarts
@@ -132,12 +132,10 @@ class ShopcartCollection(Resource):
         # Create a message to return
         message = shopcart.serialize()
         location_url = api.url_for(
-            "get_shopcart_by_id", shopcart_id=shopcart.id, _external=True
+            ShopcartResource, shopcart_id=shopcart.id, _external=True
         )
 
-        return make_response(
-            jsonify(message), status.HTTP_201_CREATED, {"Location": location_url}
-        )
+        return message, status.HTTP_201_CREATED, {"Location": location_url}
 
     ######################################################################
     #  LIST ALL SHOPCARTS
@@ -171,14 +169,15 @@ class ShopcartCollection(Resource):
             shopcarts = Shopcart.all()
 
         results = [shopcart.serialize() for shopcart in shopcarts]
+        app.logger.info(results)
         app.logger.info("Return %d shopcart in total.", len(results))
-        return make_response(jsonify(results), status.HTTP_200_OK)
+        return results, status.HTTP_200_OK
 
 
 ######################################################################
 #  PATH: /api/shopcarts/<int:shopcart_id>
 ######################################################################
-@api.route("/api/shopcarts/<int:shopcart_id>", strict_slashes=False)
+@api.route("/shopcarts/<int:shopcart_id>", strict_slashes=False)
 @api.param("shopcart_id", "The Shopcart identifier")
 class ShopcartResource(Resource):
     """
@@ -205,7 +204,7 @@ class ShopcartResource(Resource):
                 f"Shopcart with id '{shopcart_id}' could not be found.",
             )
 
-        return make_response(jsonify(shopcart.serialize()), status.HTTP_200_OK)
+        return shopcart.serialize(), status.HTTP_200_OK
 
     ######################################################################
     #  UPDATE AN EXISTING SHOPCART
@@ -222,12 +221,6 @@ class ShopcartResource(Resource):
         check_content_type("application/json")
 
         data = api.payload
-        if data["id"] != shopcart_id:
-            abort(
-                status.HTTP_400_BAD_REQUEST,
-                f"Shopcart ID in request JSON ({data['id']}) does not match with request URL ({shopcart_id}).",
-            )
-
         shopcart = Shopcart.find(shopcart_id)
 
         if not shopcart:
@@ -241,7 +234,7 @@ class ShopcartResource(Resource):
         shopcart.update()
 
         message = shopcart.serialize()
-        return make_response(jsonify(message), status.HTTP_200_OK)
+        return message, status.HTTP_200_OK
 
     ######################################################################
     #  DELETE A SHOPCART BY ID
@@ -261,13 +254,13 @@ class ShopcartResource(Resource):
                 item.delete()
             shopcart.delete()
 
-        return make_response("", status.HTTP_204_NO_CONTENT)
+        return "", status.HTTP_204_NO_CONTENT
 
 
 ######################################################################
 #  PATH: /api/shopcarts/<int:shopcart_id>/items
 ######################################################################
-@api.route("/api/shopcarts/<int:shopcart_id>/items", strict_slashes=False)
+@api.route("/shopcarts/<int:shopcart_id>/items", strict_slashes=False)
 @api.param("shopcart_id", "The Shopcart identifier")
 class ItemCollection(Resource):
     """
@@ -338,12 +331,12 @@ class ItemCollection(Resource):
             ShopcartResource, shopcart_id=shopcart.id, _external=True
         )
         app.logger.info(
-            "Item [%s] has been added to the shopcart [%s]", cart_item.id, shopcart_id
+            "Item [%s] has been added to the shopcart [%s]",
+            cart_item.product_id,
+            shopcart_id,
         )
 
-        return make_response(
-            jsonify(message), status.HTTP_201_CREATED, {"Location": location_url}
-        )
+        return message, status.HTTP_201_CREATED, {"Location": location_url}
 
     ######################################################################
     #  LIST ITEMS IN A SHOPCART
@@ -351,7 +344,7 @@ class ItemCollection(Resource):
     @api.doc("list_cart_items")
     @api.response(404, "items not found")
     @api.expect(cartItem_args)
-    @api.marshal_list_with(shopcart_model)
+    @api.marshal_list_with(cartItem_model)
     def get(self, shopcart_id):
         """
         If there is a product_id query parameter, return the queried items for the specified shopcart.
@@ -391,7 +384,7 @@ class ItemCollection(Resource):
         results = [item.serialize() for item in items]
 
         app.logger.info("Return %d items in the shopcart.", len(results))
-        return make_response(jsonify(results), status.HTTP_200_OK)
+        return results, status.HTTP_200_OK
 
     ######################################################################
     #  DELETE ITEMS FROM A SHOPCART
@@ -428,15 +421,13 @@ class ItemCollection(Resource):
                     + f"in Shopcart with shopcart_id '{shopcart_id}'.",
                 )
 
-        return make_response("", status.HTTP_204_NO_CONTENT)
+        return "", status.HTTP_204_NO_CONTENT
 
 
 ######################################################################
 #  PATH: /api/shopcarts/<int:shopcart_id>/items/<int:product_id>
 ######################################################################
-@api.route(
-    "/api/shopcarts/<int:shopcart_id>/items/<int:product_id>", strict_slashes=False
-)
+@api.route("/shopcarts/<int:shopcart_id>/items/<int:product_id>", strict_slashes=False)
 @api.param("shopcart_id", "The Shopcart identifier")
 @api.param("product_id", "The Item identifier")
 class ItemResource(Resource):
@@ -481,7 +472,7 @@ class ItemResource(Resource):
             )
 
         # Return the item details
-        return make_response(jsonify(cart_item.serialize()), status.HTTP_200_OK)
+        return cart_item.serialize(), status.HTTP_200_OK
 
     ######################################################################
     #  UPDATE AN ITEM IN A SHOPCART BY ID
@@ -507,14 +498,14 @@ class ItemResource(Resource):
         shopcart = Shopcart.find(shopcart_id)
         if not shopcart:
             # Return a 204 response if the shopcart is not found
-            return make_response("", status.HTTP_204_NO_CONTENT)
+            return "", status.HTTP_204_NO_CONTENT
 
         # Locate the product in the shopcart
         cart_item = CartItem.find_by_shopcart_id_and_product_id(shopcart_id, product_id)
 
         if not cart_item:
             # Return a 204 response if the product is not found in the shopcart
-            return make_response("", status.HTTP_204_NO_CONTENT)
+            return "", status.HTTP_204_NO_CONTENT
 
         # Parse the request data using the defined parser
         args = update_item_args.parse_args()
@@ -556,12 +547,8 @@ class ItemResource(Resource):
 
         # Update the item information and return
         cart_item.update()
-        return make_response(
-            jsonify(
-                {
-                    "log": message,
-                }
-            ),
+        return (
+            {"log": message},
             status.HTTP_200_OK,
         )
 
@@ -589,13 +576,13 @@ class ItemResource(Resource):
         if item:
             item.delete()
 
-        return make_response("", status.HTTP_204_NO_CONTENT)
+        return "", status.HTTP_204_NO_CONTENT
 
 
 ######################################################################
 #  PATH: /api/shopcarts/<int:shopcart_id>/clear
 ######################################################################
-@api.route("/api/shopcarts/<int:shopcart_id>/clear", strict_slashes=False)
+@api.route("/shopcarts/<int:shopcart_id>/clear", strict_slashes=False)
 @api.param("shopcart_id", "The Shopcart identifier")
 class ClearItemsInCart(Resource):
     """
@@ -627,7 +614,7 @@ class ClearItemsInCart(Resource):
         for item in shopcart.items:
             item.delete()
 
-        return make_response(jsonify(shopcart.serialize()), status.HTTP_200_OK)
+        return shopcart.serialize(), status.HTTP_200_OK
 
 
 ######################################################################

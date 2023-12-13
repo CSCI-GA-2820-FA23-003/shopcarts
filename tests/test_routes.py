@@ -42,10 +42,9 @@ class TestYourResourceServer(TestCase):  # pylint: disable=too-many-public-metho
 
     def setUp(self):
         """This runs before each test"""
+        self.client = app.test_client()
         db.session.query(Shopcart).delete()  # clean up the last tests
         db.session.commit()
-
-        self.client = app.test_client()
 
     def tearDown(self):
         """This runs after each test"""
