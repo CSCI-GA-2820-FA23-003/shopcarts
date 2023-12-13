@@ -134,7 +134,7 @@ spec:
       workingDir: $(workspaces.source.path)
       env:
        - name: BASE_URL
-         value: https://shopcarts-alex955-dev.apps.sandbox-m4.g2pi.p1.openshiftapps.com/
+         value: https://shopcarts-chen73-dev.apps.sandbox-m2.ll9k.p1.openshiftapps.com/
       script: |
         #!/bin/bash
         set -e
